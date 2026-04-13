@@ -1,0 +1,1987 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Nossa Retrospectiva</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #1DB954;
+            --dark: #121212;
+            --darker: #0a0a0a;
+            --card: #1a1a2e;
+            --text: #ffffff;
+            --text-muted: #b3b3b3;
+            --accent-pink: #e91e8c;
+            --accent-purple: #9b59b6;
+            --accent-blue: #3498db;
+            --accent-orange: #e67e22;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+            background: var(--darker);
+            color: var(--text);
+        }
+
+        /* ===== TELA DE CONFIGURACAO ===== */
+        #config-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: var(--dark);
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        #config-screen.hidden { display: none; }
+
+        .config-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding-bottom: 100px;
+        }
+
+        .config-header {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .config-header h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .config-header p {
+            color: var(--text-muted);
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+
+        .config-section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .config-section h2 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .config-section h2 .icon {
+            font-size: 1.4rem;
+        }
+
+        /* Toggle switch for sections */
+        .section-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .section-toggle label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: rgba(255,255,255,0.15);
+            border-radius: 24px;
+            transition: 0.3s;
+        }
+
+        .toggle-slider::before {
+            content: "";
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: var(--primary);
+        }
+
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(20px);
+        }
+
+        .section-fields {
+            transition: opacity 0.3s, max-height 0.3s;
+        }
+
+        .section-fields.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+            max-height: 0;
+            overflow: hidden;
+        }
+
+        .field-group {
+            margin-bottom: 16px;
+        }
+
+        .field-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .field-group input,
+        .field-group textarea,
+        .field-group select {
+            width: 100%;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .field-group input:focus,
+        .field-group textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .field-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .field-group input[type="file"] {
+            padding: 10px;
+        }
+
+        .field-group input[type="color"] {
+            height: 45px;
+            cursor: pointer;
+        }
+
+        .moment-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .moment-item .moment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .moment-item .moment-header span {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .btn-remove {
+            background: rgba(231,76,60,0.2);
+            color: #e74c3c;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-add {
+            width: 100%;
+            background: rgba(29,185,84,0.15);
+            color: var(--primary);
+            border: 2px dashed rgba(29,185,84,0.4);
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-add:hover {
+            background: rgba(29,185,84,0.25);
+            border-color: var(--primary);
+        }
+
+        .btn-generate {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--primary), #17a34a);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 16px 48px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 8px 32px rgba(29,185,84,0.4);
+            z-index: 100;
+            transition: transform 0.2s;
+        }
+
+        .btn-generate:hover {
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        /* ===== PLAYER / SLIDES ===== */
+        #story-player {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            display: none;
+        }
+
+        #story-player.active { display: block; }
+
+        .progress-bar-container {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            gap: 4px;
+            z-index: 60;
+        }
+
+        .progress-segment {
+            flex: 1;
+            height: 3px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-segment .fill {
+            height: 100%;
+            width: 0%;
+            background: #fff;
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+
+        .progress-segment.completed .fill {
+            width: 100%;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 30px 40px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            overflow: hidden;
+        }
+
+        .slide.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .slide-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .slide-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        /* Tap zones */
+        .tap-zone {
+            position: absolute;
+            top: 60px;
+            bottom: 0;
+            z-index: 50;
+        }
+
+        .tap-left { left: 0; width: 30%; }
+        .tap-right { right: 0; width: 70%; }
+
+        /* ===== ANIMACOES DOS SLIDES ===== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-60px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(60px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.3); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.3); }
+            60% { transform: scale(1); }
+        }
+
+        @keyframes rotateIn {
+            from { opacity: 0; transform: rotate(-10deg) scale(0.8); }
+            to { opacity: 1; transform: rotate(0deg) scale(1); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .anim-fade-up {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .anim-fade-scale {
+            animation: fadeInScale 0.8s ease forwards;
+        }
+
+        .anim-slide-left {
+            animation: slideInLeft 0.8s ease forwards;
+        }
+
+        .anim-slide-right {
+            animation: slideInRight 0.8s ease forwards;
+        }
+
+        .anim-rotate-in {
+            animation: rotateIn 0.8s ease forwards;
+        }
+
+        .delay-1 { animation-delay: 0.2s; opacity: 0; }
+        .delay-2 { animation-delay: 0.4s; opacity: 0; }
+        .delay-3 { animation-delay: 0.6s; opacity: 0; }
+        .delay-4 { animation-delay: 0.8s; opacity: 0; }
+        .delay-5 { animation-delay: 1.0s; opacity: 0; }
+
+        /* ===== SLIDE: INTRO ===== */
+        .slide-intro .slide-bg {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background-size: 200% 200%;
+            animation: gradientShift 6s ease infinite;
+        }
+
+        .slide-intro .sparkles {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .intro-year {
+            font-size: 5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--accent-pink), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .intro-title {
+            font-size: 1.4rem;
+            font-weight: 300;
+            margin-top: 12px;
+            letter-spacing: 2px;
+        }
+
+        .intro-subtitle {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-top: 20px;
+        }
+
+        .intro-names {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 8px;
+            background: linear-gradient(90deg, var(--primary), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tap-hint {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.4);
+            animation: pulse 2s ease infinite;
+        }
+
+        /* ===== SLIDE: STATS ===== */
+        .slide-stats .slide-bg {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            background-size: 200% 200%;
+            animation: gradientShift 8s ease infinite;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--primary);
+            line-height: 1.1;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ===== SLIDE: MUSICA ===== */
+        .slide-music .slide-bg {
+            background: linear-gradient(135deg, #1e3c72, #2a5298, #1e3c72);
+            background-size: 200% 200%;
+            animation: gradientShift 6s ease infinite;
+        }
+
+        .music-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .album-art {
+            width: 220px;
+            height: 220px;
+            border-radius: 16px;
+            margin: 0 auto;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .album-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .album-art .vinyl-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.2) 100%);
+        }
+
+        .music-info {
+            margin-top: 24px;
+        }
+
+        .music-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .music-artist {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .music-message {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+            margin-top: 12px;
+            font-style: italic;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .play-btn {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: none;
+            margin-top: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 8px 24px rgba(29,185,84,0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(29,185,84,0.5);
+        }
+
+        .play-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+            margin-left: 3px;
+        }
+
+        .play-btn.playing svg {
+            margin-left: 0;
+        }
+
+        .music-progress {
+            width: 100%;
+            max-width: 280px;
+            margin: 16px auto 0;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .music-progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* ===== SLIDE: FOTO ===== */
+        .slide-photo .slide-bg {
+            background: linear-gradient(135deg, #2d1b69, #11998e);
+            background-size: 200% 200%;
+            animation: gradientShift 6s ease infinite;
+        }
+
+        .photo-frame {
+            width: 280px;
+            max-width: 85vw;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 0 auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            position: relative;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .photo-frame img {
+            width: 100%;
+            display: block;
+            min-height: 200px;
+            object-fit: cover;
+        }
+
+        .photo-caption {
+            padding: 16px 20px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .photo-date {
+            font-size: 0.75rem;
+            color: var(--primary);
+            margin-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ===== SLIDE: TEXTO ===== */
+        .slide-text .slide-bg {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background-size: 200% 200%;
+            animation: gradientShift 8s ease infinite;
+        }
+
+        .text-big {
+            font-size: 1.6rem;
+            font-weight: 300;
+            line-height: 1.6;
+            max-width: 340px;
+            margin: 0 auto;
+        }
+
+        .text-big strong {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .text-highlight {
+            display: inline;
+            background: linear-gradient(90deg, var(--primary), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        /* ===== SLIDE: MOMENTOS ===== */
+        .slide-moments .slide-bg {
+            background: linear-gradient(135deg, #1a1a2e, #e91e8c22, #1a1a2e);
+            background-size: 200% 200%;
+            animation: gradientShift 8s ease infinite;
+        }
+
+        .moments-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .timeline {
+            text-align: left;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .timeline-dot-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 20px;
+        }
+
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            flex-shrink: 0;
+            box-shadow: 0 0 12px rgba(29,185,84,0.5);
+        }
+
+        .timeline-line {
+            width: 2px;
+            flex: 1;
+            background: rgba(29,185,84,0.3);
+            min-height: 20px;
+        }
+
+        .timeline-content h3 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .timeline-content p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .timeline-content .timeline-date {
+            font-size: 0.7rem;
+            color: var(--primary);
+            margin-top: 2px;
+        }
+
+        /* ===== SLIDE: FINAL ===== */
+        .slide-final .slide-bg {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background-size: 200% 200%;
+            animation: gradientShift 6s ease infinite;
+        }
+
+        .final-heart {
+            font-size: 4rem;
+            animation: heartbeat 2s ease infinite;
+            margin-bottom: 20px;
+        }
+
+        .final-message {
+            font-size: 1.3rem;
+            font-weight: 300;
+            line-height: 1.7;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+
+        .final-from {
+            margin-top: 30px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .final-from span {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 4px;
+        }
+
+        .btn-replay {
+            margin-top: 30px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            border-radius: 50px;
+            padding: 12px 32px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .btn-replay:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* ===== QR CODE MODAL ===== */
+        #qr-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #qr-modal.active {
+            display: flex;
+        }
+
+        .qr-card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 40px 32px;
+            text-align: center;
+            max-width: 380px;
+            width: 100%;
+        }
+
+        .qr-card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+        }
+
+        .qr-card p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 24px;
+        }
+
+        #qr-code {
+            display: inline-block;
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+        }
+
+        #qr-code canvas,
+        #qr-code img {
+            display: block;
+        }
+
+        .qr-actions {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .qr-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 24px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .qr-btn:hover { transform: scale(1.05); }
+
+        .qr-btn.secondary {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .qr-url {
+            margin-top: 16px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            word-break: break-all;
+        }
+
+        /* ===== PARTICLES ===== */
+        .particles-container {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* ===== RESPONSIVO ===== */
+        @media (max-width: 380px) {
+            .intro-year { font-size: 3.5rem; }
+            .album-art { width: 180px; height: 180px; }
+            .stats-grid { gap: 10px; }
+            .stat-number { font-size: 1.8rem; }
+            .text-big { font-size: 1.3rem; }
+            .photo-frame { width: 240px; }
+        }
+
+        /* ===== PREVIEW IMAGES ===== */
+        .preview-img {
+            max-width: 100%;
+            max-height: 80px;
+            border-radius: 8px;
+            margin-top: 8px;
+            object-fit: cover;
+        }
+
+        .slide-number-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        /* Custom color options for slides */
+        .color-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .color-option {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .color-option.selected {
+            border-color: white;
+            transform: scale(1.15);
+        }
+
+        /* Swipe indicator */
+        .swipe-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 55;
+        }
+
+        .swipe-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transition: all 0.3s;
+        }
+
+        .swipe-dot.active {
+            background: white;
+            width: 20px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- =================== TELA DE CONFIGURACAO =================== -->
+<div id="config-screen">
+    <div class="config-container">
+        <div class="config-header">
+            <h1>Nossa Retrospectiva</h1>
+            <p>Preencha os campos abaixo para criar sua retrospectiva personalizada</p>
+        </div>
+
+        <!-- Informacoes Basicas -->
+        <div class="config-section">
+            <h2><span class="icon">&#10024;</span> Informacoes Basicas</h2>
+            <div class="field-group">
+                <label>Seu nome</label>
+                <input type="text" id="cfg-your-name" placeholder="Ex: Lucas">
+            </div>
+            <div class="field-group">
+                <label>Nome dela</label>
+                <input type="text" id="cfg-her-name" placeholder="Ex: Maria">
+            </div>
+            <div class="field-group">
+                <label>Titulo da retrospectiva (opcional)</label>
+                <input type="text" id="cfg-title" placeholder="Ex: Nossa Historia, Nosso Ano...">
+            </div>
+        </div>
+
+        <!-- Estatisticas -->
+        <div class="config-section">
+            <h2><span class="icon">&#128202;</span> Estatisticas</h2>
+            <div class="section-toggle">
+                <label for="toggle-stats">Incluir esta etapa</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="toggle-stats" checked onchange="toggleSection(this, 'fields-stats')">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="section-fields" id="fields-stats">
+                <div class="field-group">
+                    <label>Dias juntos</label>
+                    <input type="number" id="cfg-days" placeholder="Ex: 365">
+                </div>
+                <div class="field-group">
+                    <label>Mensagens trocadas</label>
+                    <input type="text" id="cfg-messages" placeholder="Ex: 48.293">
+                </div>
+                <div class="field-group">
+                    <label>Horas de chamada</label>
+                    <input type="text" id="cfg-calls" placeholder="Ex: 312">
+                </div>
+                <div class="field-group">
+                    <label>Fotos juntos</label>
+                    <input type="text" id="cfg-photos-count" placeholder="Ex: 847">
+                </div>
+            </div>
+        </div>
+
+        <!-- Musica -->
+        <div class="config-section">
+            <h2><span class="icon">&#127925;</span> Nossa Musica</h2>
+            <div class="section-toggle">
+                <label for="toggle-music">Incluir esta etapa</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="toggle-music" checked onchange="toggleSection(this, 'fields-music')">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="section-fields" id="fields-music">
+                <div class="field-group">
+                    <label>Link do Spotify da musica</label>
+                    <input type="text" id="cfg-spotify-url" placeholder="Ex: https://open.spotify.com/track/7qiZfU4dY1lWllzX7mPBI3">
+                    <small style="color:var(--text-muted);font-size:0.75rem;margin-top:4px;display:block;">
+                        Abra o Spotify > clique nos 3 pontinhos da musica > Compartilhar > Copiar link.
+                        Funciona quando hospedado online.
+                    </small>
+                </div>
+                <div style="text-align:center;padding:8px 0;color:var(--text-muted);font-size:0.8rem;">ou</div>
+                <div class="field-group">
+                    <label>Arquivo de musica (MP3) — funciona offline tambem</label>
+                    <input type="file" id="cfg-song-file" accept="audio/*">
+                </div>
+                <div class="field-group">
+                    <label>Capa do album (imagem, opcional)</label>
+                    <input type="file" id="cfg-song-cover" accept="image/*">
+                </div>
+                <div class="field-group">
+                    <label>Nome da musica</label>
+                    <input type="text" id="cfg-song-title" placeholder="Ex: Perfect">
+                </div>
+                <div class="field-group">
+                    <label>Artista</label>
+                    <input type="text" id="cfg-song-artist" placeholder="Ex: Ed Sheeran">
+                </div>
+                <div class="field-group">
+                    <label>Mensagem sobre a musica (opcional)</label>
+                    <textarea id="cfg-song-message" placeholder="Ex: Essa musica sempre me lembra de voce..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fotos -->
+        <div class="config-section">
+            <h2><span class="icon">&#128248;</span> Fotos</h2>
+            <div class="section-toggle">
+                <label for="toggle-photos">Incluir esta etapa</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="toggle-photos" checked onchange="toggleSection(this, 'fields-photos')">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="section-fields" id="fields-photos">
+                <div id="photos-list"></div>
+                <button class="btn-add" onclick="addPhoto()">+ Adicionar Foto</button>
+            </div>
+        </div>
+
+        <!-- Momentos -->
+        <div class="config-section">
+            <h2><span class="icon">&#128151;</span> Momentos Especiais</h2>
+            <div class="section-toggle">
+                <label for="toggle-moments">Incluir esta etapa</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="toggle-moments" checked onchange="toggleSection(this, 'fields-moments')">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="section-fields" id="fields-moments">
+                <div id="moments-list"></div>
+                <button class="btn-add" onclick="addMoment()">+ Adicionar Momento</button>
+            </div>
+        </div>
+
+        <!-- Mensagem Final -->
+        <div class="config-section">
+            <h2><span class="icon">&#128140;</span> Mensagem Final</h2>
+            <div class="section-toggle">
+                <label for="toggle-final">Incluir esta etapa</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="toggle-final" checked onchange="toggleSection(this, 'fields-final')">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="section-fields" id="fields-final">
+                <div class="field-group">
+                    <label>Sua mensagem especial</label>
+                    <textarea id="cfg-final-msg" rows="4" placeholder="Escreva aqui sua mensagem do coracao..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-generate" onclick="generateRetro()">Gerar Retrospectiva</button>
+    </div>
+</div>
+
+<!-- =================== STORY PLAYER =================== -->
+<div id="story-player">
+    <div class="progress-bar-container" id="progress-bars"></div>
+    <div id="slides-container"></div>
+    <div class="tap-zone tap-left" id="tap-left"></div>
+    <div class="tap-zone tap-right" id="tap-right"></div>
+</div>
+
+<!-- =================== QR CODE MODAL =================== -->
+<div id="qr-modal">
+    <div class="qr-card">
+        <h2>Sua Retrospectiva</h2>
+        <p>Escaneie o QR Code ou compartilhe o link</p>
+        <div id="qr-code"></div>
+        <div class="qr-actions">
+            <button class="qr-btn" onclick="copyLink()">Copiar Link</button>
+            <button class="qr-btn secondary" onclick="previewRetro()">Visualizar</button>
+            <button class="qr-btn secondary" onclick="closeQR()">Fechar</button>
+        </div>
+        <div class="qr-url" id="qr-url"></div>
+        <p style="margin-top:16px;font-size:0.75rem;color:var(--text-muted);">
+            Hospede o arquivo HTML gerado em qualquer servidor<br>e substitua a URL acima pela URL real.
+        </p>
+    </div>
+</div>
+
+<!-- QR Code Library -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+<script>
+// ============ STATE ============
+let retroData = {};
+let currentSlide = 0;
+let slides = [];
+let progressTimer = null;
+let autoAdvanceTimer = null;
+
+const SLIDE_DURATION = 6000; // 6 seconds per slide
+
+// ============ DYNAMIC FORM HELPERS ============
+let photoCount = 0;
+let momentCount = 0;
+
+function addPhoto() {
+    photoCount++;
+    const container = document.getElementById('photos-list');
+    const item = document.createElement('div');
+    item.className = 'moment-item';
+    item.id = `photo-item-${photoCount}`;
+    item.innerHTML = `
+        <div class="moment-header">
+            <span>Foto ${photoCount}</span>
+            <button class="btn-remove" onclick="removeElement('photo-item-${photoCount}')">Remover</button>
+        </div>
+        <div class="field-group">
+            <label>Imagem</label>
+            <input type="file" class="photo-file" accept="image/*" data-index="${photoCount}">
+        </div>
+        <div class="field-group">
+            <label>Legenda</label>
+            <input type="text" class="photo-caption" placeholder="Uma legenda especial...">
+        </div>
+        <div class="field-group">
+            <label>Data (opcional)</label>
+            <input type="text" class="photo-date" placeholder="Ex: Janeiro 2024">
+        </div>
+    `;
+    container.appendChild(item);
+}
+
+function addMoment() {
+    momentCount++;
+    const container = document.getElementById('moments-list');
+    const item = document.createElement('div');
+    item.className = 'moment-item';
+    item.id = `moment-item-${momentCount}`;
+    item.innerHTML = `
+        <div class="moment-header">
+            <span>Momento ${momentCount}</span>
+            <button class="btn-remove" onclick="removeElement('moment-item-${momentCount}')">Remover</button>
+        </div>
+        <div class="field-group">
+            <label>Foto do momento (opcional)</label>
+            <input type="file" class="moment-photo" accept="image/*">
+        </div>
+        <div class="field-group">
+            <label>Titulo</label>
+            <input type="text" class="moment-title" placeholder="Ex: Primeiro encontro">
+        </div>
+        <div class="field-group">
+            <label>Descricao</label>
+            <input type="text" class="moment-desc" placeholder="Ex: O dia que tudo comecou...">
+        </div>
+        <div class="field-group">
+            <label>Data</label>
+            <input type="text" class="moment-date" placeholder="Ex: 14 de Fevereiro, 2024">
+        </div>
+    `;
+    container.appendChild(item);
+}
+
+function removeElement(id) {
+    document.getElementById(id)?.remove();
+}
+
+function toggleSection(checkbox, fieldsId) {
+    const fields = document.getElementById(fieldsId);
+    if (checkbox.checked) {
+        fields.classList.remove('disabled');
+    } else {
+        fields.classList.add('disabled');
+    }
+}
+
+// ============ READ FILE AS DATA URL ============
+function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+        if (!file) { resolve(null); return; }
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// ============ GENERATE RETRO ============
+async function generateRetro() {
+    // Collect basic info
+    retroData = {
+        yourName: document.getElementById('cfg-your-name').value || 'Eu',
+        herName: document.getElementById('cfg-her-name').value || 'Voce',
+        title: document.getElementById('cfg-title').value || 'Nossa Retrospectiva',
+        stats: {
+            days: document.getElementById('cfg-days').value || '???',
+            messages: document.getElementById('cfg-messages').value || '???',
+            calls: document.getElementById('cfg-calls').value || '???',
+            photos: document.getElementById('cfg-photos-count').value || '???',
+        },
+        song: {
+            title: document.getElementById('cfg-song-title').value || '',
+            artist: document.getElementById('cfg-song-artist').value || '',
+            spotifyUrl: document.getElementById('cfg-spotify-url').value || '',
+            cover: null,
+            file: null,
+            message: document.getElementById('cfg-song-message').value || '',
+        },
+        photos: [],
+        moments: [],
+        finalMessage: document.getElementById('cfg-final-msg').value || 'Voce e especial demais pra mim.',
+    };
+
+    // Read song cover
+    const coverInput = document.getElementById('cfg-song-cover');
+    if (coverInput && coverInput.files[0]) {
+        retroData.song.cover = await readFileAsDataURL(coverInput.files[0]);
+    }
+
+    // Read song file (MP3)
+    const songInput = document.getElementById('cfg-song-file');
+    if (songInput && songInput.files[0]) {
+        retroData.song.file = await readFileAsDataURL(songInput.files[0]);
+    }
+
+    // Read photos
+    const photoItems = document.querySelectorAll('[id^="photo-item-"]');
+    for (const item of photoItems) {
+        const fileInput = item.querySelector('.photo-file');
+        const caption = item.querySelector('.photo-caption').value;
+        const date = item.querySelector('.photo-date').value;
+        let imgData = null;
+        if (fileInput.files[0]) {
+            imgData = await readFileAsDataURL(fileInput.files[0]);
+        }
+        if (imgData || caption) {
+            retroData.photos.push({ image: imgData, caption, date });
+        }
+    }
+
+    // Read moments
+    const momentItems = document.querySelectorAll('[id^="moment-item-"]');
+    for (const item of momentItems) {
+        const title = item.querySelector('.moment-title').value;
+        const desc = item.querySelector('.moment-desc').value;
+        const date = item.querySelector('.moment-date').value;
+        const photoInput = item.querySelector('.moment-photo');
+        let momentImg = null;
+        if (photoInput && photoInput.files[0]) {
+            momentImg = await readFileAsDataURL(photoInput.files[0]);
+        }
+        if (title) {
+            retroData.moments.push({ title, desc, date, image: momentImg });
+        }
+    }
+
+    // Build slides
+    buildSlides();
+
+    // Show QR modal
+    showQRModal();
+}
+
+// ============ BUILD SLIDES ============
+function buildSlides() {
+    slides = [];
+    const container = document.getElementById('slides-container');
+    container.innerHTML = '';
+
+    // Check which sections are enabled
+    const statsEnabled = document.getElementById('toggle-stats')?.checked ?? true;
+    const musicEnabled = document.getElementById('toggle-music')?.checked ?? true;
+    const photosEnabled = document.getElementById('toggle-photos')?.checked ?? true;
+    const momentsEnabled = document.getElementById('toggle-moments')?.checked ?? true;
+    const finalEnabled = document.getElementById('toggle-final')?.checked ?? true;
+
+    // 1. INTRO SLIDE (always included)
+    slides.push(createIntroSlide());
+
+    // 2. STATS SLIDE
+    if (statsEnabled) {
+        slides.push(createStatsSlide());
+    }
+
+    // 3. MUSIC SLIDE
+    if (musicEnabled && (retroData.song.title || retroData.song.spotifyUrl)) {
+        slides.push(createMusicSlide());
+    }
+
+    // 4. PHOTO SLIDES
+    if (photosEnabled) {
+        retroData.photos.forEach((photo, i) => {
+            slides.push(createPhotoSlide(photo, i));
+        });
+    }
+
+    // 5. MOMENTS SLIDES
+    if (momentsEnabled && retroData.moments.length > 0) {
+        createMomentsSlides().forEach(s => slides.push(s));
+    }
+
+    // 6. FINAL SLIDE
+    if (finalEnabled) {
+        slides.push(createFinalSlide());
+    }
+
+    // Append all slides
+    slides.forEach(slide => container.appendChild(slide));
+
+    // Create progress bars
+    const progressContainer = document.getElementById('progress-bars');
+    progressContainer.innerHTML = '';
+    slides.forEach((_, i) => {
+        const seg = document.createElement('div');
+        seg.className = 'progress-segment';
+        seg.innerHTML = '<div class="fill"></div>';
+        progressContainer.appendChild(seg);
+    });
+}
+
+function createSparkles() {
+    let html = '<div class="sparkles">';
+    for (let i = 0; i < 30; i++) {
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        const delay = Math.random() * 3;
+        const size = 2 + Math.random() * 4;
+        const opacity = 0.2 + Math.random() * 0.5;
+        html += `<div class="sparkle" style="left:${x}%;top:${y}%;width:${size}px;height:${size}px;opacity:${opacity};animation-delay:${delay}s"></div>`;
+    }
+    html += '</div>';
+    return html;
+}
+
+function createParticles(colors) {
+    let html = '<div class="particles-container">';
+    for (let i = 0; i < 20; i++) {
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        const size = 4 + Math.random() * 8;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const delay = Math.random() * 4;
+        html += `<div class="particle" style="left:${x}%;top:${y}%;width:${size}px;height:${size}px;background:${color};opacity:0.15;animation:float ${3+Math.random()*2}s ease-in-out ${delay}s infinite"></div>`;
+    }
+    html += '</div>';
+    return html;
+}
+
+function createIntroSlide() {
+    const slide = document.createElement('div');
+    slide.className = 'slide slide-intro';
+    slide.innerHTML = `
+        <div class="slide-bg"></div>
+        ${createSparkles()}
+        <div class="slide-content">
+            <div class="slide-number-label anim-fade-up">2024 / 2025</div>
+            <div class="intro-year anim-fade-scale delay-1">${retroData.title.includes('20') ? retroData.title : '&#10024;'}</div>
+            <div class="intro-title anim-fade-up delay-2">${retroData.title}</div>
+            <div class="intro-subtitle anim-fade-up delay-3">Uma historia entre</div>
+            <div class="intro-names anim-fade-up delay-4">${retroData.yourName} & ${retroData.herName}</div>
+        </div>
+        <div class="tap-hint anim-fade-up delay-5">Toque para continuar &rarr;</div>
+    `;
+    return slide;
+}
+
+function createStatsSlide() {
+    const slide = document.createElement('div');
+    slide.className = 'slide slide-stats';
+    slide.innerHTML = `
+        <div class="slide-bg"></div>
+        ${createParticles(['#1DB954', '#3498db', '#9b59b6'])}
+        <div class="slide-content">
+            <div class="slide-number-label anim-fade-up">em numeros</div>
+            <h2 class="anim-fade-up delay-1" style="font-size:1.4rem;margin-bottom:4px;">Nosso ano juntos</h2>
+            <div class="stats-grid">
+                <div class="stat-card anim-fade-scale delay-1">
+                    <div class="stat-number">${retroData.stats.days}</div>
+                    <div class="stat-label">Dias Juntos</div>
+                </div>
+                <div class="stat-card anim-fade-scale delay-2">
+                    <div class="stat-number">${retroData.stats.messages}</div>
+                    <div class="stat-label">Mensagens</div>
+                </div>
+                <div class="stat-card anim-fade-scale delay-3">
+                    <div class="stat-number">${retroData.stats.calls}</div>
+                    <div class="stat-label">Horas de Call</div>
+                </div>
+                <div class="stat-card anim-fade-scale delay-4">
+                    <div class="stat-number">${retroData.stats.photos}</div>
+                    <div class="stat-label">Fotos Juntos</div>
+                </div>
+            </div>
+        </div>
+    `;
+    return slide;
+}
+
+function getSpotifyEmbedUrl(url) {
+    // Accepts links like:
+    // https://open.spotify.com/track/7qiZfU4dY1lWllzX7mPBI3
+    // https://open.spotify.com/track/7qiZfU4dY1lWllzX7mPBI3?si=abc123
+    // spotify:track:7qiZfU4dY1lWllzX7mPBI3
+    let trackId = '';
+    if (url.includes('spotify.com/track/')) {
+        trackId = url.split('/track/')[1].split('?')[0].split('/')[0];
+    } else if (url.includes('spotify:track:')) {
+        trackId = url.split('spotify:track:')[1];
+    }
+    if (trackId) {
+        return `https://open.spotify.com/embed/track/${trackId}?utm_source=generator&theme=0`;
+    }
+    return '';
+}
+
+function createMusicSlide() {
+    const embedUrl = getSpotifyEmbedUrl(retroData.song.spotifyUrl);
+    const hasLocalFile = !!retroData.song.file;
+
+    // Build cover art HTML for local player
+    const coverHtml = retroData.song.cover
+        ? `<img src="${retroData.song.cover}" alt="Album">`
+        : `<div style="width:100%;height:100%;background:linear-gradient(135deg,var(--primary),var(--accent-purple));display:flex;align-items:center;justify-content:center;font-size:4rem;">&#127925;</div>`;
+
+    let playerHtml = '';
+
+    if (hasLocalFile) {
+        // Local MP3 player with play button
+        playerHtml = `
+            <div class="album-art anim-fade-scale delay-1">
+                ${coverHtml}
+                <div class="vinyl-overlay"></div>
+            </div>
+            <div class="music-info">
+                <div class="music-title anim-fade-up delay-2">${retroData.song.title}</div>
+                <div class="music-artist anim-fade-up delay-2">${retroData.song.artist}</div>
+            </div>
+            <button class="play-btn anim-fade-scale delay-3" onclick="toggleMusic(event)">
+                <svg viewBox="0 0 24 24" id="play-icon"><polygon points="5,3 19,12 5,21"/></svg>
+            </button>
+            <div class="music-progress anim-fade-up delay-4">
+                <div class="music-progress-fill" id="music-progress-fill"></div>
+            </div>
+        `;
+    } else if (embedUrl) {
+        // Spotify embed player
+        playerHtml = `
+            <div class="anim-fade-scale delay-1" style="margin:0 auto;border-radius:12px;overflow:hidden;max-width:320px;">
+                <iframe
+                    src="${embedUrl}"
+                    width="100%"
+                    height="152"
+                    frameBorder="0"
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    loading="lazy"
+                    style="border-radius:12px;"
+                ></iframe>
+            </div>
+        `;
+    } else {
+        // Fallback: just show song name
+        playerHtml = `
+            <div class="music-info anim-fade-up delay-1">
+                <div class="music-title" style="font-size:1.8rem;">${retroData.song.title}</div>
+                <div class="music-artist">${retroData.song.artist}</div>
+            </div>
+        `;
+    }
+
+    const slide = document.createElement('div');
+    slide.className = 'slide slide-music';
+    slide.innerHTML = `
+        <div class="slide-bg"></div>
+        ${createParticles(['#1DB954', '#1e3c72', '#2a5298'])}
+        <div class="slide-content">
+            <div class="music-label anim-fade-up">Nossa Musica</div>
+            ${playerHtml}
+            ${retroData.song.message ? `<div class="music-message anim-fade-up delay-3">"${retroData.song.message}"</div>` : ''}
+        </div>
+    `;
+    return slide;
+}
+
+function createPhotoSlide(photo, index) {
+    const gradients = [
+        'linear-gradient(135deg, #2d1b69, #11998e)',
+        'linear-gradient(135deg, #e91e8c33, #1a1a2e, #302b63)',
+        'linear-gradient(135deg, #0f3460, #533483)',
+        'linear-gradient(135deg, #1a1a2e, #e67e2233, #16213e)',
+    ];
+
+    const slide = document.createElement('div');
+    slide.className = 'slide slide-photo';
+    slide.innerHTML = `
+        <div class="slide-bg" style="background:${gradients[index % gradients.length]};background-size:200% 200%;animation:gradientShift 6s ease infinite;"></div>
+        ${createParticles(['#ffffff', '#1DB954', '#e91e8c'])}
+        <div class="slide-content">
+            <div class="photo-frame anim-rotate-in">
+                ${photo.image ? `<img src="${photo.image}" alt="Foto">` : ''}
+                <div class="photo-caption anim-fade-up delay-2">
+                    ${photo.caption || ''}
+                    ${photo.date ? `<div class="photo-date">${photo.date}</div>` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+    return slide;
+}
+
+function createMomentsSlides() {
+    const momentSlides = [];
+    const momentsWithPhoto = retroData.moments.filter(m => m.image);
+    const momentsWithoutPhoto = retroData.moments.filter(m => !m.image);
+
+    // Each moment WITH photo gets its own slide
+    momentsWithPhoto.forEach((m, i) => {
+        const gradients = [
+            'linear-gradient(135deg, #1a1a2e, #e91e8c33, #302b63)',
+            'linear-gradient(135deg, #0f3460, #533483)',
+            'linear-gradient(135deg, #2d1b69, #11998e)',
+            'linear-gradient(135deg, #1a1a2e, #e67e2233, #16213e)',
+        ];
+        const slide = document.createElement('div');
+        slide.className = 'slide slide-moments';
+        slide.innerHTML = `
+            <div class="slide-bg" style="background:${gradients[i % gradients.length]};background-size:200% 200%;animation:gradientShift 6s ease infinite;"></div>
+            ${createParticles(['#e91e8c', '#9b59b6', '#1DB954'])}
+            <div class="slide-content">
+                <div class="slide-number-label anim-fade-up">momento especial</div>
+                <div class="photo-frame anim-rotate-in" style="margin-bottom:16px;">
+                    <img src="${m.image}" alt="${m.title}" style="max-height:280px;">
+                </div>
+                <h3 class="anim-fade-up delay-2" style="font-size:1.1rem;font-weight:700;">${m.title}</h3>
+                <p class="anim-fade-up delay-3" style="font-size:0.9rem;color:var(--text-muted);margin-top:4px;">${m.desc}</p>
+                ${m.date ? `<div class="anim-fade-up delay-4" style="font-size:0.75rem;color:var(--primary);margin-top:8px;text-transform:uppercase;letter-spacing:1px;">${m.date}</div>` : ''}
+            </div>
+        `;
+        momentSlides.push(slide);
+    });
+
+    // Moments WITHOUT photo go in a timeline slide
+    if (momentsWithoutPhoto.length > 0) {
+        let timelineHtml = '';
+        momentsWithoutPhoto.forEach((m, i) => {
+            timelineHtml += `
+                <div class="timeline-item anim-slide-left delay-${Math.min(i+1, 5)}">
+                    <div class="timeline-dot-wrapper">
+                        <div class="timeline-dot"></div>
+                        ${i < momentsWithoutPhoto.length - 1 ? '<div class="timeline-line"></div>' : ''}
+                    </div>
+                    <div class="timeline-content">
+                        <h3>${m.title}</h3>
+                        <p>${m.desc}</p>
+                        ${m.date ? `<div class="timeline-date">${m.date}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+
+        const slide = document.createElement('div');
+        slide.className = 'slide slide-moments';
+        slide.innerHTML = `
+            <div class="slide-bg"></div>
+            ${createParticles(['#e91e8c', '#9b59b6', '#1DB954'])}
+            <div class="slide-content">
+                <div class="moments-title anim-fade-up">Nossos Momentos Especiais</div>
+                <div class="timeline">${timelineHtml}</div>
+            </div>
+        `;
+        momentSlides.push(slide);
+    }
+
+    return momentSlides;
+}
+
+function createFinalSlide() {
+    const slide = document.createElement('div');
+    slide.className = 'slide slide-final';
+    slide.innerHTML = `
+        <div class="slide-bg"></div>
+        ${createSparkles()}
+        <div class="slide-content">
+            <div class="final-heart anim-fade-scale">&#10084;&#65039;</div>
+            <div class="final-message anim-fade-up delay-1">${retroData.finalMessage}</div>
+            <div class="final-from anim-fade-up delay-3">
+                Com amor,
+                <span>${retroData.yourName}</span>
+            </div>
+            <button class="btn-replay anim-fade-up delay-4" onclick="replayStory()">Assistir de novo</button>
+        </div>
+    `;
+    return slide;
+}
+
+// ============ STORY PLAYER ============
+function startStory() {
+    currentSlide = 0;
+    const player = document.getElementById('story-player');
+    player.classList.add('active');
+    showSlide(0);
+    startAutoAdvance();
+}
+
+function showSlide(index) {
+    if (index < 0 || index >= slides.length) return;
+
+    // Stop auto advance timer
+    clearTimeout(autoAdvanceTimer);
+    clearInterval(progressTimer);
+
+    // Deactivate all slides
+    slides.forEach(s => s.classList.remove('active'));
+
+    // Reset animations by re-triggering
+    const currentSlideEl = slides[index];
+    currentSlideEl.classList.add('active');
+
+    // Update progress bars
+    const segments = document.querySelectorAll('.progress-segment');
+    segments.forEach((seg, i) => {
+        const fill = seg.querySelector('.fill');
+        if (i < index) {
+            seg.classList.add('completed');
+            fill.style.width = '100%';
+        } else if (i === index) {
+            seg.classList.remove('completed');
+            fill.style.width = '0%';
+            // Animate fill
+            let progress = 0;
+            const isMusicSlide = currentSlideEl.classList.contains('slide-music');
+            const isFinalSlide = currentSlideEl.classList.contains('slide-final');
+            const duration = (isMusicSlide || isFinalSlide) ? 15000 : SLIDE_DURATION;
+
+            progressTimer = setInterval(() => {
+                progress += 100 / (duration / 100);
+                fill.style.width = Math.min(progress, 100) + '%';
+                if (progress >= 100) {
+                    clearInterval(progressTimer);
+                }
+            }, 100);
+        } else {
+            seg.classList.remove('completed');
+            fill.style.width = '0%';
+        }
+    });
+
+    currentSlide = index;
+    startAutoAdvance();
+}
+
+function startAutoAdvance() {
+    clearTimeout(autoAdvanceTimer);
+    const currentSlideEl = slides[currentSlide];
+    const isMusicSlide = currentSlideEl.classList.contains('slide-music');
+    const isFinalSlide = currentSlideEl.classList.contains('slide-final');
+    const duration = (isMusicSlide || isFinalSlide) ? 15000 : SLIDE_DURATION;
+
+    if (!isFinalSlide) {
+        autoAdvanceTimer = setTimeout(() => {
+            if (currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }, duration);
+    }
+}
+
+function nextSlide() {
+    if (currentSlide < slides.length - 1) {
+        showSlide(currentSlide + 1);
+    }
+}
+
+function prevSlide() {
+    if (currentSlide > 0) {
+        showSlide(currentSlide - 1);
+    }
+}
+
+function replayStory() {
+    stopMusic();
+    showSlide(0);
+}
+
+// Tap navigation
+document.getElementById('tap-left').addEventListener('click', prevSlide);
+document.getElementById('tap-right').addEventListener('click', nextSlide);
+
+// Touch/swipe support
+let touchStartX = 0;
+let touchEndX = 0;
+
+document.getElementById('story-player').addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+}, { passive: true });
+
+document.getElementById('story-player').addEventListener('touchend', e => {
+    touchEndX = e.changedTouches[0].screenX;
+    const diff = touchStartX - touchEndX;
+    if (Math.abs(diff) > 50) {
+        if (diff > 0) nextSlide();
+        else prevSlide();
+    }
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+    if (e.key === 'Escape') closeStory();
+});
+
+function closeStory() {
+    stopMusic();
+    clearTimeout(autoAdvanceTimer);
+    clearInterval(progressTimer);
+    document.getElementById('story-player').classList.remove('active');
+}
+
+// ============ MUSIC PLAYER (LOCAL MP3) ============
+let audioPlayer = null;
+let isPlaying = false;
+
+function toggleMusic(event) {
+    event.stopPropagation();
+
+    if (!retroData.song.file) {
+        return;
+    }
+
+    if (!audioPlayer) {
+        audioPlayer = new Audio(retroData.song.file);
+        audioPlayer.addEventListener('timeupdate', updateMusicProgress);
+        audioPlayer.addEventListener('ended', () => {
+            isPlaying = false;
+            updatePlayButton();
+        });
+    }
+
+    if (isPlaying) {
+        audioPlayer.pause();
+        isPlaying = false;
+    } else {
+        audioPlayer.play();
+        isPlaying = true;
+    }
+    updatePlayButton();
+}
+
+function updatePlayButton() {
+    const btn = document.querySelector('.play-btn');
+    const icon = document.getElementById('play-icon');
+    if (!btn || !icon) return;
+
+    if (isPlaying) {
+        btn.classList.add('playing');
+        icon.innerHTML = '<rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/>';
+    } else {
+        btn.classList.remove('playing');
+        icon.innerHTML = '<polygon points="5,3 19,12 5,21"/>';
+    }
+}
+
+function updateMusicProgress() {
+    if (!audioPlayer) return;
+    const fill = document.getElementById('music-progress-fill');
+    if (!fill) return;
+    const pct = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+    fill.style.width = pct + '%';
+}
+
+function stopMusic() {
+    if (audioPlayer) {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        isPlaying = false;
+        updatePlayButton();
+    }
+}
+
+// ============ QR CODE ============
+function showQRModal() {
+    const modal = document.getElementById('qr-modal');
+    modal.classList.add('active');
+
+    // Generate a self-contained HTML file as a Blob URL for preview
+    // For actual sharing, user needs to host the file
+    const qrContainer = document.getElementById('qr-code');
+    qrContainer.innerHTML = '';
+
+    // Use current page URL or placeholder
+    const url = window.location.href;
+    document.getElementById('qr-url').textContent = url;
+
+    if (typeof QRCode !== 'undefined') {
+        QRCode.toCanvas(url, {
+            width: 200,
+            margin: 1,
+            color: { dark: '#000000', light: '#ffffff' }
+        }, (err, canvas) => {
+            if (err) {
+                qrContainer.innerHTML = '<p style="color:var(--text-muted)">Erro ao gerar QR Code</p>';
+                return;
+            }
+            canvas.style.borderRadius = '8px';
+            qrContainer.appendChild(canvas);
+        });
+    }
+}
+
+function closeQR() {
+    document.getElementById('qr-modal').classList.remove('active');
+}
+
+function copyLink() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+        const btn = event.target;
+        btn.textContent = 'Copiado!';
+        setTimeout(() => btn.textContent = 'Copiar Link', 2000);
+    });
+}
+
+function previewRetro() {
+    closeQR();
+    document.getElementById('config-screen').classList.add('hidden');
+    startStory();
+}
+
+// ============ DOWNLOAD SELF-CONTAINED VERSION ============
+function downloadRetro() {
+    // This would generate a self-contained HTML file
+    // For now, the preview works locally
+    alert('Para compartilhar, hospede este arquivo HTML em um servidor (ex: GitHub Pages, Netlify, Vercel) e compartilhe o link/QR Code!');
+}
+
+// ============ CHECK IF VIEWING MODE ============
+// If URL has #view parameter, go straight to story mode
+window.addEventListener('load', () => {
+    // Add initial photo and moment slots
+    addPhoto();
+    addMoment();
+
+    if (window.location.hash === '#view') {
+        // Try to load saved data from localStorage
+        const saved = localStorage.getItem('retroData');
+        if (saved) {
+            retroData = JSON.parse(saved);
+            buildSlides();
+            document.getElementById('config-screen').classList.add('hidden');
+            startStory();
+        }
+    }
+});
+
+// Save data to localStorage when generating
+const originalGenerate = generateRetro;
+generateRetro = async function() {
+    await originalGenerate();
+    try {
+        // Save a version without heavy base64 data for localStorage
+        // Full data stays in memory for the current session
+        localStorage.setItem('retroData', JSON.stringify(retroData));
+    } catch(e) {
+        console.log('Data too large for localStorage, will work in current session only');
+    }
+};
+</script>
+
+</body>
+</html>
