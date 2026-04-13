@@ -1209,7 +1209,7 @@
 </div>
 
 <!-- QR Code Library -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
 // ============ STATE ============
@@ -1565,20 +1565,41 @@ function createMusicSlide() {
             </div>
         `;
     } else if (embedUrl) {
-        // Spotify embed player
-        playerHtml = `
-            <div class="anim-fade-scale delay-1" style="margin:0 auto;border-radius:12px;overflow:hidden;max-width:320px;">
-                <iframe
-                    src="${embedUrl}"
-                    width="100%"
-                    height="152"
-                    frameBorder="0"
-                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                    loading="lazy"
-                    style="border-radius:12px;"
-                ></iframe>
-            </div>
-        `;
+        const isLocal = window.location.protocol === 'file:';
+        const spotifyDirectLink = retroData.song.spotifyUrl;
+
+        if (isLocal) {
+            // Local: show cover + button to open Spotify
+            playerHtml = `
+                <div class="album-art anim-fade-scale delay-1">
+                    ${coverHtml}
+                    <div class="vinyl-overlay"></div>
+                </div>
+                <div class="music-info">
+                    <div class="music-title anim-fade-up delay-2">${retroData.song.title}</div>
+                    <div class="music-artist anim-fade-up delay-2">${retroData.song.artist}</div>
+                </div>
+                <a href="${spotifyDirectLink}" target="_blank" rel="noopener" class="play-btn anim-fade-scale delay-3" style="text-decoration:none;" onclick="event.stopPropagation()">
+                    <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:white;margin-left:3px;"><polygon points="5,3 19,12 5,21"/></svg>
+                </a>
+                <div class="anim-fade-up delay-4" style="font-size:0.7rem;color:var(--text-muted);margin-top:8px;">Toque para abrir no Spotify</div>
+            `;
+        } else {
+            // Hosted: Spotify embed player
+            playerHtml = `
+                <div class="anim-fade-scale delay-1" style="margin:0 auto;border-radius:12px;overflow:hidden;max-width:320px;">
+                    <iframe
+                        src="${embedUrl}"
+                        width="100%"
+                        height="152"
+                        frameBorder="0"
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        loading="lazy"
+                        style="border-radius:12px;"
+                    ></iframe>
+                </div>
+            `;
+        }
     } else {
         // Fallback: just show song name
         playerHtml = `
@@ -1904,28 +1925,28 @@ function showQRModal() {
     const modal = document.getElementById('qr-modal');
     modal.classList.add('active');
 
-    // Generate a self-contained HTML file as a Blob URL for preview
-    // For actual sharing, user needs to host the file
     const qrContainer = document.getElementById('qr-code');
     qrContainer.innerHTML = '';
 
-    // Use current page URL or placeholder
-    const url = window.location.href;
+    // Use GitHub Pages URL
+    const isLocal = window.location.protocol === 'file:';
+    const url = isLocal
+        ? 'https://kyenzera.github.io/retrospectiva/'
+        : window.location.href.split('#')[0];
+
     document.getElementById('qr-url').textContent = url;
 
-    if (typeof QRCode !== 'undefined') {
-        QRCode.toCanvas(url, {
+    try {
+        new QRCode(qrContainer, {
+            text: url,
             width: 200,
-            margin: 1,
-            color: { dark: '#000000', light: '#ffffff' }
-        }, (err, canvas) => {
-            if (err) {
-                qrContainer.innerHTML = '<p style="color:var(--text-muted)">Erro ao gerar QR Code</p>';
-                return;
-            }
-            canvas.style.borderRadius = '8px';
-            qrContainer.appendChild(canvas);
+            height: 200,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
         });
+    } catch(e) {
+        qrContainer.innerHTML = '<p style="color:var(--text-muted)">Erro ao gerar QR Code. Verifique sua conexao.</p>';
     }
 }
 
@@ -1934,7 +1955,11 @@ function closeQR() {
 }
 
 function copyLink() {
-    const url = window.location.href;
+    const isLocal = window.location.protocol === 'file:';
+    const url = isLocal
+        ? 'https://kyenzera.github.io/retrospectiva/'
+        : window.location.href.split('#')[0];
+
     navigator.clipboard.writeText(url).then(() => {
         const btn = event.target;
         btn.textContent = 'Copiado!';
