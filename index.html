@@ -110,9 +110,11 @@
 
         .toggle-switch {
             position: relative;
+            display: inline-block;
             width: 44px;
             height: 24px;
             flex-shrink: 0;
+            cursor: pointer;
         }
 
         .toggle-switch input[type="checkbox"] {
@@ -1058,10 +1060,10 @@
             <h2><span class="icon">&#128202;</span> Estatisticas</h2>
             <div class="section-toggle">
                 <label for="toggle-stats">Incluir esta etapa</label>
-                <div class="toggle-switch">
+                <label class="toggle-switch">
                     <input type="checkbox" id="toggle-stats" checked onchange="toggleSection(this, 'fields-stats')">
                     <span class="toggle-slider"></span>
-                </div>
+                </label>
             </div>
             <div class="section-fields" id="fields-stats">
                 <div class="field-group">
@@ -1088,10 +1090,10 @@
             <h2><span class="icon">&#127925;</span> Nossa Musica</h2>
             <div class="section-toggle">
                 <label for="toggle-music">Incluir esta etapa</label>
-                <div class="toggle-switch">
+                <label class="toggle-switch">
                     <input type="checkbox" id="toggle-music" checked onchange="toggleSection(this, 'fields-music')">
                     <span class="toggle-slider"></span>
-                </div>
+                </label>
             </div>
             <div class="section-fields" id="fields-music">
                 <div class="field-group">
@@ -1131,10 +1133,10 @@
             <h2><span class="icon">&#128248;</span> Fotos</h2>
             <div class="section-toggle">
                 <label for="toggle-photos">Incluir esta etapa</label>
-                <div class="toggle-switch">
+                <label class="toggle-switch">
                     <input type="checkbox" id="toggle-photos" checked onchange="toggleSection(this, 'fields-photos')">
                     <span class="toggle-slider"></span>
-                </div>
+                </label>
             </div>
             <div class="section-fields" id="fields-photos">
                 <div id="photos-list"></div>
@@ -1147,10 +1149,10 @@
             <h2><span class="icon">&#128151;</span> Momentos Especiais</h2>
             <div class="section-toggle">
                 <label for="toggle-moments">Incluir esta etapa</label>
-                <div class="toggle-switch">
+                <label class="toggle-switch">
                     <input type="checkbox" id="toggle-moments" checked onchange="toggleSection(this, 'fields-moments')">
                     <span class="toggle-slider"></span>
-                </div>
+                </label>
             </div>
             <div class="section-fields" id="fields-moments">
                 <div id="moments-list"></div>
@@ -1163,10 +1165,10 @@
             <h2><span class="icon">&#128140;</span> Mensagem Final</h2>
             <div class="section-toggle">
                 <label for="toggle-final">Incluir esta etapa</label>
-                <div class="toggle-switch">
+                <label class="toggle-switch">
                     <input type="checkbox" id="toggle-final" checked onchange="toggleSection(this, 'fields-final')">
                     <span class="toggle-slider"></span>
-                </div>
+                </label>
             </div>
             <div class="section-fields" id="fields-final">
                 <div class="field-group">
