@@ -334,6 +334,7 @@
         .stat-number { font-size:2.2rem; font-weight:900; color:var(--primary); line-height:1.1; }
         .stat-label { font-size:0.75rem; color:var(--text-muted); margin-top:4px; text-transform:uppercase; letter-spacing:1px; }
 
+        .slide-music .slide-content { z-index:55; }
         .slide-music .slide-bg { background:linear-gradient(135deg,#1e3c72,#2a5298,#1e3c72); background-size:200% 200%; animation:gradientShift 6s ease infinite; }
         .music-label { font-size:0.85rem; text-transform:uppercase; letter-spacing:3px; color:var(--primary); margin-bottom:20px; }
         .album-art { width:220px; height:220px; border-radius:16px; margin:0 auto; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.5); position:relative; }
@@ -538,11 +539,16 @@
         <p>Escaneie o QR Code ou compartilhe o link</p>
         <div id="qr-code"></div>
         <div class="qr-actions">
-            <button class="qr-btn" onclick="copyLink()">Copiar Link</button>
+            <button class="qr-btn" onclick="downloadViewerFile()">Baixar arquivo pronto</button>
             <button class="qr-btn secondary" onclick="previewRetro()">Visualizar</button>
+            <button class="qr-btn secondary" onclick="copyLink()">Copiar Link</button>
             <button class="qr-btn secondary" onclick="closeQR()">Fechar</button>
         </div>
         <div class="qr-url" id="qr-url"></div>
+        <p style="margin-top:12px;font-size:0.72rem;color:var(--accent-pink);line-height:1.4;">
+            Clique em "Baixar arquivo pronto" e substitua o index.html no seu repositorio.<br>
+            Assim quando ela escanear o QR, vai direto pra retrospectiva!
+        </p>
     </div>
 </div>
 
@@ -740,7 +746,7 @@ function createMusicSlide() {
         playerHtml = '<div class="album-art anim-fade-scale delay-1">'+coverHtml+'<div class="vinyl-overlay"></div></div><div class="music-info"><div class="music-title anim-fade-up delay-2">'+retroData.song.title+'</div><div class="music-artist anim-fade-up delay-2">'+retroData.song.artist+'</div></div><button class="play-btn anim-fade-scale delay-3" onclick="toggleMusic(event)"><svg viewBox="0 0 24 24" id="play-icon"><polygon points="5,3 19,12 5,21"/></svg></button><div class="music-progress anim-fade-up delay-4"><div class="music-progress-fill" id="music-progress-fill"></div></div>';
     } else if (trackId) {
         var embedUrl = 'https://open.spotify.com/embed/track/'+trackId+'?utm_source=generator&theme=0';
-        playerHtml = '<div class="anim-fade-scale delay-1" style="margin:0 auto;border-radius:12px;overflow:hidden;max-width:320px;"><iframe src="'+embedUrl+'" width="100%" height="152" frameBorder="0" allow="autoplay;clipboard-write;encrypted-media;fullscreen;picture-in-picture" loading="lazy" style="border-radius:12px;"></iframe></div>';
+        playerHtml = '<div class="anim-fade-scale delay-1" style="position:relative;z-index:55;margin:0 auto;border-radius:12px;overflow:hidden;max-width:320px;"><iframe src="'+embedUrl+'" width="100%" height="352" frameBorder="0" allow="autoplay;clipboard-write;encrypted-media;fullscreen;picture-in-picture" loading="lazy" style="border-radius:12px;"></iframe></div>';
         if (retroData.song.title) {
             playerHtml += '<div class="music-info" style="margin-top:16px;"><div class="music-title anim-fade-up delay-2">'+retroData.song.title+'</div><div class="music-artist anim-fade-up delay-2">'+retroData.song.artist+'</div></div>';
         }
@@ -895,6 +901,89 @@ function copyLink() {
 }
 
 function previewRetro() { closeQR(); document.getElementById('config-screen').classList.add('hidden'); startStory(); }
+
+function downloadViewerFile() {
+    // Collect toggle states
+    var se = document.getElementById('toggle-stats').checked;
+    var me = document.getElementById('toggle-music').checked;
+    var pe = document.getElementById('toggle-photos').checked;
+    var moe = document.getElementById('toggle-moments').checked;
+    var fe = document.getElementById('toggle-final').checked;
+
+    var trackId = getSpotifyTrackId(retroData.song.spotifyUrl);
+    var embedUrl = trackId ? 'https://open.spotify.com/embed/track/'+trackId+'?utm_source=generator&theme=0' : '';
+
+    // Build the standalone HTML
+    var html = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"><title>'+retroData.title+'</title>';
+    html += '<style>@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap");';
+    html += document.querySelector('style').textContent;
+    html += '#config-screen{display:none!important;}';
+    html += '</style></head><body>';
+    html += '<div id="story-player" class="active"><div class="progress-bar-container" id="progress-bars"></div><div id="slides-container"></div><div class="tap-zone tap-left" id="tap-left"></div><div class="tap-zone tap-right" id="tap-right"></div></div>';
+    html += '<scr'+'ipt>';
+
+    // Embed retroData (without the huge file blob for MP3 - spotify embed works when hosted)
+    var viewerData = JSON.parse(JSON.stringify(retroData));
+    // Keep song.file only if no spotify (it's base64 so it works embedded)
+    if (trackId) viewerData.song.file = null;
+
+    html += 'var retroData='+JSON.stringify(viewerData)+';';
+    html += 'var slides=[],currentSlide=0,progressTimer=null,autoAdvanceTimer=null,audioPlayer=null,isPlaying=false;';
+    html += 'var SLIDE_DURATION=6000;';
+    html += 'var se='+se+',me='+me+',pe='+pe+',moe='+moe+',fe='+fe+';';
+
+    // Embed all the builder/player functions
+    html += sparkles.toString()+';';
+    html += particles.toString()+';';
+    html += getSpotifyTrackId.toString()+';';
+    html += createIntroSlide.toString()+';';
+    html += createStatsSlide.toString()+';';
+    html += createMusicSlide.toString()+';';
+    html += createPhotoSlide.toString()+';';
+    html += createMomentsSlides.toString()+';';
+    html += createFinalSlide.toString()+';';
+    html += showSlide.toString()+';';
+    html += nextSlide.toString()+';';
+    html += prevSlide.toString()+';';
+    html += replayStory.toString()+';';
+    html += toggleMusic.toString()+';';
+    html += updatePlayBtn.toString()+';';
+    html += stopMusic.toString()+';';
+
+    // Build slides and start
+    html += 'function startViewer(){';
+    html += 'var container=document.getElementById("slides-container");container.innerHTML="";';
+    html += 'slides.push(createIntroSlide());';
+    html += 'if(se)slides.push(createStatsSlide());';
+    html += 'if(me&&(retroData.song.title||retroData.song.spotifyUrl||retroData.song.file))slides.push(createMusicSlide());';
+    html += 'if(pe)retroData.photos.forEach(function(p,i){slides.push(createPhotoSlide(p,i));});';
+    html += 'if(moe&&retroData.moments.length>0){var ms=createMomentsSlides();for(var k=0;k<ms.length;k++)slides.push(ms[k]);}';
+    html += 'if(fe)slides.push(createFinalSlide());';
+    html += 'slides.forEach(function(s){container.appendChild(s);});';
+    html += 'var pb=document.getElementById("progress-bars");pb.innerHTML="";';
+    html += 'for(var i=0;i<slides.length;i++){var seg=document.createElement("div");seg.className="progress-segment";seg.innerHTML=\'<div class="fill"></div>\';pb.appendChild(seg);}';
+    html += 'showSlide(0);';
+    html += '}';
+
+    // Navigation
+    html += 'document.getElementById("tap-left").addEventListener("click",prevSlide);';
+    html += 'document.getElementById("tap-right").addEventListener("click",nextSlide);';
+    html += 'var touchX=0;';
+    html += 'document.getElementById("story-player").addEventListener("touchstart",function(e){touchX=e.changedTouches[0].screenX;},{passive:true});';
+    html += 'document.getElementById("story-player").addEventListener("touchend",function(e){var d=touchX-e.changedTouches[0].screenX;if(Math.abs(d)>50){if(d>0)nextSlide();else prevSlide();}});';
+    html += 'document.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key===" ")nextSlide();if(e.key==="ArrowLeft")prevSlide();});';
+    html += 'window.addEventListener("load",startViewer);';
+
+    html += '</scr'+'ipt></body></html>';
+
+    // Download
+    var blob = new Blob([html], {type:'text/html'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'index.html';
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
 
 // ===== INIT =====
 window.addEventListener('load', function() {
