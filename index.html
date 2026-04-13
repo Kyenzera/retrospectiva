@@ -115,10 +115,14 @@
             flex-shrink: 0;
         }
 
-        .toggle-switch input {
+        .toggle-switch input[type="checkbox"] {
+            position: absolute;
             opacity: 0;
             width: 0;
             height: 0;
+            padding: 0;
+            margin: 0;
+            border: none;
         }
 
         .toggle-slider {
@@ -151,14 +155,13 @@
         }
 
         .section-fields {
-            transition: opacity 0.3s, max-height 0.3s;
+            transition: opacity 0.3s;
         }
 
         .section-fields.disabled {
             opacity: 0.3;
             pointer-events: none;
-            max-height: 0;
-            overflow: hidden;
+            display: none;
         }
 
         .field-group {
@@ -172,7 +175,7 @@
             margin-bottom: 6px;
         }
 
-        .field-group input,
+        .field-group input:not([type="checkbox"]),
         .field-group textarea,
         .field-group select {
             width: 100%;
