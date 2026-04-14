@@ -1,19 +1,269 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nossa Retrospectiva</title>
-    <style>
-        body { margin:0; height:100vh; display:flex; align-items:center; justify-content:center; background:#121212; color:#fff; font-family:'Poppins',sans-serif; text-align:center; padding:20px; }
-        h1 { font-size:1.5rem; color:#1DB954; }
-        p { color:#b3b3b3; margin-top:8px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Nossa Retrospectiva - Ana &amp; Bia</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Poppins',sans-serif;background:#0a0a0a;color:#fff;-webkit-tap-highlight-color:transparent;user-select:none;}
+
+/* Progress bars */
+.progress-bar-container{position:fixed;top:0;left:0;right:0;display:flex;gap:3px;padding:8px 8px 0;z-index:200;}
+.progress-bar{flex:1;height:3px;background:rgba(255,255,255,0.2);border-radius:3px;overflow:hidden;}
+.progress-bar .fill{height:100%;width:0;background:#1DB954;border-radius:3px;transition:width 0.1s linear;}
+.progress-bar.done .fill{width:100%!important;}
+
+/* Slides */
+.slides-wrapper{position:relative;width:100%;height:100%;}
+.slide{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;transition:opacity 0.5s ease;display:flex;align-items:center;justify-content:center;pointer-events:none;overflow-y:auto;}
+.slide.active{opacity:1;pointer-events:auto;z-index:10;}
+
+/* Tap zones */
+.tap-zone{position:fixed;top:0;bottom:0;z-index:50;}
+.tap-left{left:0;width:30%;}
+.tap-right{right:0;width:70%;}
+
+/* Slide content */
+.slide-content{width:100%;max-width:420px;padding:60px 24px 40px;text-align:center;position:relative;margin:auto;}
+
+/* Gradient backgrounds */
+.slide:nth-child(4n+1){background:linear-gradient(180deg,#0d1117 0%,#161b22 50%,#0d1117 100%);}
+.slide:nth-child(4n+2){background:linear-gradient(180deg,#121212 0%,#1a1a2e 50%,#121212 100%);}
+.slide:nth-child(4n+3){background:linear-gradient(180deg,#0f0f1a 0%,#1a0f2e 50%,#0f0f1a 100%);}
+.slide:nth-child(4n+4){background:linear-gradient(180deg,#0a1a0a 0%,#0f2a1a 50%,#0a1a0a 100%);}
+
+/* Intro */
+.intro-slide .intro-icon{font-size:3rem;margin-bottom:16px;}
+.intro-slide h1{font-size:2rem;font-weight:800;background:linear-gradient(135deg,#1DB954,#1ed760,#a8ff78);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;line-height:1.3;}
+.intro-slide p{color:#b3b3b3;font-size:1rem;}
+.intro-sub{font-size:0.8rem!important;margin-top:24px;opacity:0.5;}
+
+/* Stats */
+.stats-slide h2{font-size:1.6rem;font-weight:700;color:#1DB954;margin-bottom:24px;}
+.stats-grid{display:flex;flex-direction:column;gap:14px;}
+.stat-item{background:rgba(29,185,84,0.08);border:1px solid rgba(29,185,84,0.15);border-radius:16px;padding:16px 20px;display:flex;flex-direction:column;align-items:center;}
+.stat-num{font-size:2.2rem;font-weight:800;background:linear-gradient(135deg,#1DB954,#1ed760);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.stat-label{font-size:0.85rem;color:#b3b3b3;margin-top:4px;}
+
+/* Music */
+.music-slide h2{font-size:1.6rem;font-weight:700;color:#1DB954;margin-bottom:20px;}
+.spotify-wrapper{width:100%;border-radius:12px;overflow:hidden;position:relative;z-index:100;}
+.spotify-wrapper iframe{position:relative;z-index:100;}
+
+/* Photos */
+.photo-slide .photo-frame{width:280px;height:280px;max-width:80vw;max-height:80vw;border-radius:20px;overflow:hidden;border:3px solid rgba(29,185,84,0.3);margin:0 auto 16px;box-shadow:0 8px 32px rgba(29,185,84,0.15);}
+.photo-slide .photo-frame img{width:100%;height:100%;object-fit:cover;}
+.photo-caption{color:#b3b3b3;font-size:0.95rem;font-style:italic;}
+
+/* Moments with photo */
+.moment-slide h2{font-size:1.4rem;font-weight:700;color:#1DB954;margin-bottom:16px;}
+.moment-photo{width:220px;height:220px;max-width:65vw;max-height:65vw;border-radius:16px;overflow:hidden;margin:0 auto 16px;border:2px solid rgba(29,185,84,0.25);box-shadow:0 4px 20px rgba(0,0,0,0.3);}
+.moment-photo img{width:100%;height:100%;object-fit:cover;}
+.moment-desc{color:#b3b3b3;font-size:0.9rem;line-height:1.5;}
+
+/* Timeline */
+.timeline-slide h2{font-size:1.6rem;font-weight:700;color:#1DB954;margin-bottom:24px;}
+.timeline{display:flex;flex-direction:column;gap:16px;padding-left:20px;border-left:2px solid rgba(29,185,84,0.3);text-align:left;}
+.timeline-item{position:relative;padding-left:20px;}
+.timeline-dot{position:absolute;left:-27px;top:6px;width:12px;height:12px;border-radius:50%;background:#1DB954;border:2px solid #0a0a0a;}
+.timeline-content h3{font-size:1rem;font-weight:600;color:#fff;margin-bottom:4px;}
+.timeline-content p{font-size:0.85rem;color:#b3b3b3;line-height:1.4;}
+
+/* Final */
+.final-slide .final-icon{font-size:3rem;margin-bottom:20px;}
+.final-msg{font-size:1.1rem;line-height:1.7;color:#e0e0e0;white-space:pre-line;margin-bottom:32px;}
+.replay-btn{background:linear-gradient(135deg,#1DB954,#1ed760);color:#000;font-family:'Poppins',sans-serif;font-weight:700;font-size:0.95rem;border:none;padding:14px 32px;border-radius:50px;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;}
+.replay-btn:hover{transform:scale(1.05);box-shadow:0 4px 20px rgba(29,185,84,0.4);}
+.replay-btn:active{transform:scale(0.97);}
+
+/* Animations */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeInScale{from{opacity:0;transform:scale(0.7);}to{opacity:1;transform:scale(1);}}
+@keyframes rotateIn{from{opacity:0;transform:rotate(-8deg) scale(0.8);}to{opacity:1;transform:rotate(0) scale(1);}}
+@keyframes sparkle{0%,100%{opacity:0;transform:scale(0);}50%{opacity:1;transform:scale(1);}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+
+.slide.active .anim-fadeInUp{animation:fadeInUp 0.6s ease forwards;}
+.slide.active .anim-fadeInScale{animation:fadeInScale 0.6s ease forwards;}
+.slide.active .anim-rotateIn{animation:rotateIn 0.7s ease forwards;}
+.slide:not(.active) .anim-fadeInUp,
+.slide:not(.active) .anim-fadeInScale,
+.slide:not(.active) .anim-rotateIn{opacity:0;}
+
+.delay1{animation-delay:0.15s!important;}
+.delay2{animation-delay:0.3s!important;}
+.delay3{animation-delay:0.45s!important;}
+.delay4{animation-delay:0.6s!important;}
+.delay5{animation-delay:0.75s!important;}
+
+/* Sparkles */
+.sparkle-container{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;}
+.sparkle{position:absolute;border-radius:50%;background:#1DB954;animation:sparkle 2s ease-in-out infinite;}
+
+/* Particles */
+.particle{position:fixed;border-radius:50%;background:rgba(29,185,84,0.25);pointer-events:none;z-index:1;}
+</style>
 </head>
 <body>
-    <div>
-        <h1>Em breve...</h1>
-        <p>A retrospectiva ainda esta sendo preparada.</p>
-    </div>
+
+<div class="progress-bar-container" id="progressBars"></div>
+<div class="slides-wrapper" id="slidesWrapper"></div>
+<div class="tap-zone tap-left" id="tapLeft"></div>
+<div class="tap-zone tap-right" id="tapRight"></div>
+
+<script>
+(function(){
+  var slides = [{"type":"intro","html":"<div class=\"slide-content intro-slide\"><div class=\"sparkle-container\" id=\"sparkles\"><\/div><div class=\"intro-icon\">❤️<\/div><h1 class=\"anim-fadeInScale\">Ana &amp; Bia<\/h1><p class=\"anim-fadeInUp delay1\">Nossa Retrospectiva<\/p><p class=\"anim-fadeInUp delay2 intro-sub\">Toque para começar<\/p><\/div>","duration":6000},{"type":"stats","html":"<div class=\"slide-content stats-slide\"><h2 class=\"anim-fadeInScale\">Nossos Números<\/h2><div class=\"stats-grid\"><div class=\"stat-item anim-fadeInUp delay1\"><span class=\"stat-num\">365<\/span><span class=\"stat-label\">dias juntos<\/span><\/div><div class=\"stat-item anim-fadeInUp delay2\"><span class=\"stat-num\">50000<\/span><span class=\"stat-label\">mensagens<\/span><\/div><\/div><\/div>","duration":6000},{"type":"music","html":"<div class=\"slide-content music-slide\"><h2 class=\"anim-fadeInScale\">Nossa Música<\/h2><div class=\"spotify-wrapper anim-fadeInUp delay1\"><iframe src=\"https://open.spotify.com/embed/track/4PTG3Z6ehGkBFwjybzWkR8?utm_source=generator&amp;theme=0\" width=\"100%\" height=\"352\" frameBorder=\"0\" allow=\"autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture\" loading=\"lazy\" style=\"border-radius:12px;position:relative;z-index:100;\"><\/iframe><\/div><\/div>","duration":15000},{"type":"final","html":"<div class=\"slide-content final-slide\"><div class=\"sparkle-container\" id=\"sparkles-final\"><\/div><div class=\"final-icon anim-fadeInScale\">❤️<\/div><p class=\"final-msg anim-fadeInUp delay1\">Te amo muito!<br>Para sempre.<\/p><button class=\"replay-btn anim-fadeInUp delay3\" onclick=\"restartSlides()\">Assistir de novo<\/button><\/div>","duration":15000}];
+  var currentSlide = 0;
+  var autoTimer = null;
+  var rafId = null;
+  var progressStart = 0;
+
+  var wrapper = document.getElementById('slidesWrapper');
+  var barsContainer = document.getElementById('progressBars');
+
+  // Build slide elements and progress bars
+  slides.forEach(function(s, i){
+    var div = document.createElement('div');
+    div.className = 'slide' + (i === 0 ? ' active' : '');
+    div.innerHTML = s.html;
+    wrapper.appendChild(div);
+
+    var bar = document.createElement('div');
+    bar.className = 'progress-bar';
+    bar.innerHTML = '<div class="fill"></div>';
+    barsContainer.appendChild(bar);
+  });
+
+  // Floating particles
+  for(var i = 0; i < 12; i++){
+    var p = document.createElement('div');
+    p.className = 'particle';
+    var size = 2 + Math.random() * 4;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.top = Math.random() * 100 + '%';
+    p.style.opacity = String(0.08 + Math.random() * 0.2);
+    document.body.appendChild(p);
+    driftParticle(p);
+  }
+
+  function driftParticle(el){
+    var dur = 5 + Math.random() * 8;
+    el.style.transition = 'left ' + dur + 's linear, top ' + dur + 's linear';
+    setTimeout(function(){
+      el.style.left = Math.random() * 100 + '%';
+      el.style.top = Math.random() * 100 + '%';
+    }, 50);
+    setTimeout(function(){ driftParticle(el); }, dur * 1000);
+  }
+
+  // Sparkle spawner
+  function spawnSparkles(id){
+    var c = document.getElementById(id);
+    if(!c) return;
+    c.innerHTML = '';
+    for(var i = 0; i < 25; i++){
+      var s = document.createElement('div');
+      s.className = 'sparkle';
+      var sz = 3 + Math.random() * 7;
+      s.style.width = sz + 'px';
+      s.style.height = sz + 'px';
+      s.style.left = Math.random() * 100 + '%';
+      s.style.top = Math.random() * 100 + '%';
+      s.style.animationDelay = (Math.random() * 3) + 's';
+      s.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+      c.appendChild(s);
+    }
+  }
+
+  function goTo(index){
+    if(index < 0 || index >= slides.length) return;
+    var els = wrapper.querySelectorAll('.slide');
+    els[currentSlide].classList.remove('active');
+    els[index].classList.add('active');
+
+    // Update progress bars
+    var bars = barsContainer.querySelectorAll('.progress-bar');
+    for(var i = 0; i < bars.length; i++){
+      var fill = bars[i].querySelector('.fill');
+      if(i < index){
+        bars[i].classList.add('done');
+        fill.style.width = '100%';
+      } else {
+        bars[i].classList.remove('done');
+        fill.style.width = '0%';
+      }
+    }
+
+    currentSlide = index;
+
+    if(slides[index].type === 'intro') spawnSparkles('sparkles');
+    if(slides[index].type === 'final') spawnSparkles('sparkles-final');
+
+    startTimer();
+  }
+
+  function startTimer(){
+    clearTimeout(autoTimer);
+    if(rafId) cancelAnimationFrame(rafId);
+
+    var duration = slides[currentSlide].duration;
+    progressStart = Date.now();
+
+    var bars = barsContainer.querySelectorAll('.progress-bar');
+    var fill = bars[currentSlide].querySelector('.fill');
+
+    function tick(){
+      var elapsed = Date.now() - progressStart;
+      var pct = Math.min(100, (elapsed / duration) * 100);
+      fill.style.width = pct + '%';
+      if(pct < 100) rafId = requestAnimationFrame(tick);
+    }
+    tick();
+
+    if(currentSlide < slides.length - 1){
+      autoTimer = setTimeout(function(){ goTo(currentSlide + 1); }, duration);
+    }
+  }
+
+  function next(){ if(currentSlide < slides.length - 1) goTo(currentSlide + 1); }
+  function prev(){ if(currentSlide > 0) goTo(currentSlide - 1); }
+
+  window.restartSlides = function(){ goTo(0); };
+
+  // Tap navigation
+  document.getElementById('tapLeft').addEventListener('click', prev);
+  document.getElementById('tapRight').addEventListener('click', next);
+
+  // Swipe
+  var sx = 0, sy = 0;
+  document.addEventListener('touchstart', function(e){
+    sx = e.touches[0].clientX;
+    sy = e.touches[0].clientY;
+  }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    var dx = e.changedTouches[0].clientX - sx;
+    var dy = e.changedTouches[0].clientY - sy;
+    if(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40){
+      if(dx < 0) next(); else prev();
+    }
+  }, {passive:true});
+
+  // Keyboard
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowRight' || e.key === ' '){ e.preventDefault(); next(); }
+    else if(e.key === 'ArrowLeft'){ e.preventDefault(); prev(); }
+    else if(e.key === 'Escape') window.restartSlides();
+  });
+
+  // Init
+  spawnSparkles('sparkles');
+  startTimer();
+})();
+</script>
 </body>
 </html>
