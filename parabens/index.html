@@ -186,8 +186,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Poppins',sans-seri
    Pra personalizar, basta editar os valores abaixo.
    ========================================================================= */
 const CONFIG = {
-  herName: "[NOME DELA]",
-  fromName: "[SEU NOME]",
+  herName: "Maria Eduarda",
+  fromName: "Fabiano",
 
   // URL pública desta página (usada pra gerar o QR Code / link de compartilhar)
   pageUrl: "https://kyenzera.github.io/retrospectiva/parabens/",
@@ -201,30 +201,30 @@ const CONFIG = {
   // ---- INTRO ----
   intro: {
     kicker: "hoje é um dia especial",
-    sub: "É o seu aniversário —<br>e eu não ia deixar passar em branco."
+    sub: "É o seu aniversário,<br>e hoje é tudo sobre você."
   },
 
   // ---- SLIDES DE MENSAGEM (pode adicionar/remover quantos quiser) ----
   messages: [
     {
       emoji: "🎂",
-      heading: "Feliz aniversário, [NOME DELA]",
-      text: "Hoje é o <strong>seu dia</strong>, então para tudo um segundinho... respira... porque esse cantinho aqui foi feito só pra te dizer uma coisa que eu sinto de verdade."
+      heading: "Feliz aniversário, Maria Eduarda",
+      text: "Hoje é o <strong>seu dia</strong> e eu não ia deixar passar sem te desejar tudo de mais lindo. Para um segundinho, respira, e curte esse cantinho que eu fiz só pra você."
     },
     {
-      emoji: "🤍",
-      heading: "A gente nunca teve um \"nós\"",
-      text: "E mesmo assim você virou uma daquelas <strong>pessoas raras</strong> que marcam a gente sem nem perceber. Não precisou de história nenhuma pra você ser especial pra mim."
-    },
-    {
-      emoji: "✨",
-      heading: "Você tem um jeito",
-      text: "Um sorriso que fica na cabeça e uma presença que deixa qualquer dia mais leve. <strong>O mundo é um lugar melhor</strong> por você existir nele — e hoje é a prova disso."
+      emoji: "🌟",
+      heading: "Hoje é sobre você",
+      text: "Você é uma pessoa <strong>especial</strong> de um jeito difícil de explicar. Tem um brilho próprio, um sorriso que ilumina e uma presença que faz qualquer dia ficar melhor."
     },
     {
       emoji: "🎉",
-      heading: "Que esse ano novo seja seu",
-      text: "Que ele te traga tudo que você sonha e <strong>merece</strong>: saúde, conquistas, risadas, paz e pessoas que te valorizem do tamanho que você é."
+      heading: "Que esse novo ano de vida seja seu",
+      text: "Que ele te traga tudo que você sonha e <strong>merece</strong>: muita saúde, conquistas, risadas, paz e pessoas que te valorizem do tamanho exato que você é."
+    },
+    {
+      emoji: "🤍",
+      heading: "Você merece o mundo",
+      text: "Que você seja muito feliz, hoje e sempre. <strong>Parabéns, Maria Eduarda</strong>, você é especial demais e merece um dia tão lindo quanto você."
     }
   ],
 
@@ -232,14 +232,15 @@ const CONFIG = {
   // type: "image"  -> src é uma URL de imagem OU um data: (base64)
   // type: "instagram" -> src é o link de um POST do Instagram (instagram.com/p/CODIGO/)
   photos: [
-    { type: "instagram", src: "", caption: "Uma legenda especial...", date: "" },
-    { type: "instagram", src: "", caption: "Outro momento...", date: "" }
+    { type: "instagram", src: "https://www.instagram.com/p/DZZt334EaFb/", caption: "Esse sorriso 🤍", date: "" },
+    { type: "instagram", src: "https://www.instagram.com/p/DWecjPMkU6v/", caption: "Você", date: "" },
+    { type: "instagram", src: "https://www.instagram.com/p/DV9rzJCCeV2/", caption: "Maria Eduarda 🌟", date: "" }
   ],
 
   // ---- REELS ----
   reel: {
     // Cole o link do reel do Instagram (instagram.com/reel/CODIGO/)
-    instagramUrl: "",
+    instagramUrl: "https://www.instagram.com/p/DUbISwSkZiD/",
     // OPCIONAL e RECOMENDADO p/ tocar com som e em loop: link direto do vídeo .mp4
     videoSrc: "",
     caption: "O buquê de hoje foi por esse video que cheguei a ver uma vez que tinha sua curtida la na época que a gente se seguia, acredito que tenha gostado ❤️, não me ache maluco só sou atento a alguns detalhes kkk"
@@ -250,7 +251,7 @@ const CONFIG = {
   music: {
     mode: "spotify",
     mp3: "",                 // URL ou data: do arquivo de áudio
-    spotifyUrl: "",          // link da música no Spotify (cole aqui)
+    spotifyUrl: "https://open.spotify.com/track/4d0DpU7Odiv0ztvX2GxJlk",
     youtubeId: "",           // só o id do vídeo do YouTube
     title: "",
     artist: "",
@@ -261,7 +262,7 @@ const CONFIG = {
 
   // ---- FINAL ----
   final: {
-    message: "Feliz aniversário de novo, [NOME DELA]. Você é especial — não precisa de motivo, de data nem de rótulo pra isso ser verdade. Mas hoje, no seu dia, eu queria muito que você soubesse. 🤍",
+    message: "Feliz aniversário de novo, Maria Eduarda. Que esse seja só o começo de um ano cheio de coisas boas. Você é muito especial pra mim, e hoje, no seu dia, eu queria que você soubesse disso. 🤍",
     sign: "Com carinho"
   }
 };
@@ -347,7 +348,8 @@ function buildReel(){
     player='<video src="'+r.videoSrc+'" loop playsinline controls preload="metadata"></video>';
   } else {
     const code=getReelCode(r.instagramUrl);
-    if(code) player='<iframe src="https://www.instagram.com/reel/'+code+'/embed/" height="560" scrolling="no" allowtransparency="true" allowfullscreen></iframe>';
+    const path=/\/reel/.test(r.instagramUrl)?'reel':'p';
+    if(code) player='<iframe src="https://www.instagram.com/'+path+'/'+code+'/embed/" height="640" scrolling="no" allowtransparency="true" allowfullscreen></iframe>';
     else player='<div style="padding:60px 20px;color:#888;">(cole o link do reel no CONFIG)</div>';
   }
   const s=el('<div class="slide-bg"></div>'+makeParticles(['#e91e8c','#9b59b6','#f1c40f'])+
