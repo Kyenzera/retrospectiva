@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Pra você 🤍</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --primary:#1DB954;
+  --pink:#e91e8c;
+  --purple:#9b59b6;
+  --gold:#f1c40f;
+  --dark:#0a0a0a;
+  --text:#ffffff;
+  --muted:#b3b3b3;
+}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Poppins',sans-serif;background:var(--dark);color:var(--text);user-select:none;}
+
+/* ===== START OVERLAY (needed to unlock audio autoplay) ===== */
+#start-screen{position:fixed;inset:0;z-index:900;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#1a0a14,#2d1b3d,#0f0c29);background-size:200% 200%;animation:gradientShift 8s ease infinite;padding:30px;text-align:center;}
+#start-screen.hidden{display:none;}
+#start-screen .heart-big{font-size:4.5rem;animation:heartbeat 2s ease infinite;margin-bottom:18px;}
+#start-screen h1{font-size:1.7rem;font-weight:800;line-height:1.3;
+  background:linear-gradient(135deg,var(--pink),var(--gold),var(--primary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+#start-screen p{color:var(--muted);margin-top:14px;font-size:0.95rem;max-width:300px;line-height:1.6;}
+.start-btn{margin-top:34px;background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;border:none;border-radius:50px;
+  padding:16px 46px;font-size:1.05rem;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;
+  box-shadow:0 10px 34px rgba(233,30,140,0.45);animation:pulse 2.4s ease infinite;}
+.start-note{margin-top:18px;font-size:0.72rem;color:rgba(255,255,255,0.4);}
+
+/* ===== PROGRESS BARS ===== */
+.progress-bar-container{position:fixed;top:0;left:0;right:0;display:flex;gap:3px;padding:8px 8px 0;z-index:200;}
+.progress-bar{flex:1;height:3px;background:rgba(255,255,255,0.22);border-radius:3px;overflow:hidden;}
+.progress-bar .fill{height:100%;width:0;background:#fff;border-radius:3px;transition:width 0.1s linear;}
+.progress-bar.done .fill{width:100%!important;}
+
+/* ===== SLIDES ===== */
+#player{position:fixed;inset:0;z-index:10;display:none;}
+#player.active{display:block;}
+.slides-wrapper{position:relative;width:100%;height:100%;}
+.slide{position:absolute;inset:0;opacity:0;transition:opacity 0.55s ease;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;overflow-y:auto;padding:64px 26px 48px;}
+.slide.active{opacity:1;pointer-events:auto;z-index:10;}
+.slide-bg{position:absolute;inset:0;z-index:0;}
+.slide-content{position:relative;z-index:10;text-align:center;width:100%;max-width:420px;margin:auto;}
+
+/* ===== TAP ZONES ===== */
+.tap-zone{position:fixed;top:0;bottom:0;z-index:50;}
+.tap-left{left:0;width:28%;}
+.tap-right{right:0;width:72%;}
+.no-tap .tap-zone{display:none;}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeInScale{from{opacity:0;transform:scale(0.8);}to{opacity:1;transform:scale(1);}}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+@keyframes gradientShift{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+@keyframes heartbeat{0%,100%{transform:scale(1);}15%{transform:scale(1.3);}30%{transform:scale(1);}45%{transform:scale(1.3);}60%{transform:scale(1);}}
+@keyframes rotateIn{from{opacity:0;transform:rotate(-8deg) scale(0.82);}to{opacity:1;transform:rotate(0) scale(1);}}
+.anim-up{animation:fadeInUp 0.85s ease forwards;}
+.anim-scale{animation:fadeInScale 0.85s ease forwards;}
+.anim-rotate{animation:rotateIn 0.85s ease forwards;}
+.d1{animation-delay:0.18s;opacity:0;}.d2{animation-delay:0.36s;opacity:0;}.d3{animation-delay:0.54s;opacity:0;}
+.d4{animation-delay:0.72s;opacity:0;}.d5{animation-delay:0.9s;opacity:0;}
+
+/* sparkles / particles */
+.sparkles,.particles{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.sparkle,.particle{position:absolute;border-radius:50%;animation:float 3.4s ease-in-out infinite;}
+.sparkle{width:4px;height:4px;background:#fff;}
+
+/* ===== INTRO SLIDE ===== */
+.s-intro .slide-bg{background:linear-gradient(135deg,#1a0a14,#2d1b3d,#0f0c29);background-size:200% 200%;animation:gradientShift 7s ease infinite;}
+.intro-kicker{font-size:0.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--pink);margin-bottom:10px;}
+.intro-name{font-size:3.2rem;font-weight:900;line-height:1.05;
+  background:linear-gradient(135deg,var(--pink),var(--gold),var(--primary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.intro-sub{font-size:1.05rem;font-weight:300;margin-top:16px;color:rgba(255,255,255,0.85);line-height:1.6;}
+
+/* ===== MESSAGE SLIDE ===== */
+.s-msg .slide-bg{background-size:200% 200%;animation:gradientShift 8s ease infinite;}
+.msg-emoji{font-size:3rem;margin-bottom:18px;display:inline-block;animation:float 4s ease-in-out infinite;}
+.msg-heading{font-size:1.5rem;font-weight:800;line-height:1.3;margin-bottom:16px;}
+.msg-text{font-size:1.08rem;font-weight:300;line-height:1.75;color:rgba(255,255,255,0.92);}
+.msg-text strong{font-weight:700;color:var(--gold);}
+
+/* ===== PHOTO SLIDE ===== */
+.s-photo .slide-bg{background-size:200% 200%;animation:gradientShift 6s ease infinite;}
+.photo-frame{width:290px;max-width:86vw;border-radius:22px;overflow:hidden;margin:0 auto;box-shadow:0 22px 60px rgba(0,0,0,0.45);
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);}
+.photo-frame img{width:100%;display:block;min-height:200px;max-height:60vh;object-fit:cover;}
+.photo-frame .ig-embed{width:100%;border:none;display:block;background:#fff;}
+.photo-caption{padding:16px 20px;background:rgba(0,0,0,0.55);backdrop-filter:blur(10px);font-size:0.98rem;line-height:1.5;}
+.photo-date{font-size:0.72rem;color:var(--primary);margin-top:6px;text-transform:uppercase;letter-spacing:1px;}
+
+/* ===== REELS SLIDE ===== */
+.s-reel .slide-bg{background:linear-gradient(135deg,#2d1b3d,#3a1c47,#1a0a14);background-size:200% 200%;animation:gradientShift 7s ease infinite;}
+.s-reel .slide{padding-top:40px;}
+.reel-label{font-size:0.74rem;letter-spacing:3px;text-transform:uppercase;color:var(--pink);margin-bottom:14px;}
+.reel-box{position:relative;z-index:100;width:340px;max-width:90vw;margin:0 auto;border-radius:18px;overflow:hidden;
+  box-shadow:0 18px 50px rgba(0,0,0,0.5);background:#000;}
+.reel-box iframe{width:100%;border:none;display:block;}
+.reel-box video{width:100%;display:block;background:#000;}
+.reel-caption{position:relative;z-index:100;margin:18px auto 0;max-width:340px;font-size:0.95rem;line-height:1.6;
+  color:rgba(255,255,255,0.92);background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px 16px;}
+.reel-hint{font-size:0.72rem;color:rgba(255,255,255,0.45);margin-top:10px;}
+
+/* ===== MUSIC SLIDE ===== */
+.s-music .slide-bg{background:linear-gradient(135deg,#1e3c72,#2a5298,#1e3c72);background-size:200% 200%;animation:gradientShift 7s ease infinite;}
+.music-label{font-size:0.74rem;text-transform:uppercase;letter-spacing:3px;color:var(--primary);margin-bottom:18px;}
+.album-art{width:210px;height:210px;border-radius:16px;margin:0 auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);position:relative;}
+.album-art img{width:100%;height:100%;object-fit:cover;}
+.album-art .fallback{width:100%;height:100%;background:linear-gradient(135deg,var(--primary),var(--purple));display:flex;align-items:center;justify-content:center;font-size:4rem;}
+.music-info{margin-top:22px;}
+.music-title{font-size:1.4rem;font-weight:700;}
+.music-artist{font-size:0.95rem;color:var(--muted);margin-top:4px;}
+.music-message{font-size:0.86rem;color:rgba(255,255,255,0.6);margin-top:12px;font-style:italic;max-width:300px;margin-left:auto;margin-right:auto;line-height:1.55;}
+.play-btn{width:66px;height:66px;border-radius:50%;background:var(--primary);border:none;margin:22px auto 0;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(29,185,84,0.4);transition:transform .2s;}
+.play-btn:hover{transform:scale(1.08);}
+.play-btn svg{width:28px;height:28px;fill:#fff;margin-left:3px;}
+.play-btn.playing svg{margin-left:0;}
+.music-progress{width:100%;max-width:280px;margin:16px auto 0;height:4px;background:rgba(255,255,255,0.2);border-radius:4px;overflow:hidden;}
+.music-progress-fill{height:100%;background:var(--primary);border-radius:4px;width:0;transition:width .3s;}
+.spotify-wrapper{position:relative;z-index:100;margin:0 auto;border-radius:12px;overflow:hidden;max-width:320px;}
+.spotify-wrapper iframe{position:relative;z-index:100;border-radius:12px;}
+
+/* ===== FINAL SLIDE ===== */
+.s-final .slide-bg{background:linear-gradient(135deg,#1a0a14,#2d1b3d,#0f0c29);background-size:200% 200%;animation:gradientShift 7s ease infinite;}
+.final-heart{font-size:4rem;animation:heartbeat 2s ease infinite;margin-bottom:18px;}
+.final-message{font-size:1.3rem;font-weight:300;line-height:1.7;max-width:330px;margin:0 auto;}
+.final-from{margin-top:28px;font-size:0.85rem;color:var(--muted);}
+.final-from span{display:block;font-size:1.1rem;font-weight:700;color:var(--pink);margin-top:4px;}
+.btn-row{margin-top:28px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.btn-soft{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:50px;padding:12px 26px;
+  font-size:0.85rem;cursor:pointer;font-family:'Poppins',sans-serif;transition:all .3s;}
+.btn-soft:hover{background:rgba(255,255,255,0.2);}
+
+/* persistent mini music control */
+#mini-music{position:fixed;bottom:16px;right:16px;z-index:300;width:46px;height:46px;border-radius:50%;
+  background:rgba(29,185,84,0.92);border:none;display:none;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.4);}
+#mini-music.show{display:flex;}
+#mini-music svg{width:20px;height:20px;fill:#fff;}
+
+@media (max-width:380px){
+  .intro-name{font-size:2.6rem;}
+  .album-art{width:170px;height:170px;}
+  .photo-frame{width:250px;}
+  .reel-box{width:300px;}
+}
+</style>
+</head>
+<body>
+
+<!-- START OVERLAY -->
+<div id="start-screen">
+  <div class="heart-big">🤍</div>
+  <h1 id="start-title">Tem um cantinho aqui<br>só pra você</h1>
+  <p id="start-sub">Coloca o som no máximo, respira fundo e toca pra começar.</p>
+  <button class="start-btn" onclick="startStory()">Começar 🤍</button>
+  <div class="start-note">feito com carinho • toque para abrir</div>
+</div>
+
+<!-- PLAYER -->
+<div id="player">
+  <div class="progress-bar-container" id="progress-bars"></div>
+  <div class="slides-wrapper" id="slides"></div>
+  <div class="tap-zone tap-left" id="tap-left"></div>
+  <div class="tap-zone tap-right" id="tap-right"></div>
+</div>
+
+<!-- persistent music toggle -->
+<button id="mini-music" onclick="toggleBgMusic(event)" title="Música">
+  <svg id="mini-music-icon" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+</button>
+
+<audio id="bg-audio" loop></audio>
+
+<script>
+/* =========================================================================
+   CONFIG  —  é AQUI que todo o conteúdo da página é definido.
+   Pra personalizar, basta editar os valores abaixo.
+   ========================================================================= */
+const CONFIG = {
+  herName: "[NOME DELA]",
+  fromName: "[SEU NOME]",
+
+  // URL pública desta página (usada pra gerar o QR Code / link de compartilhar)
+  pageUrl: "https://kyenzera.github.io/retrospectiva/parabens/",
+
+  // ---- TELA INICIAL ----
+  start: {
+    title: "Tem um cantinho aqui<br>só pra você",
+    subtitle: "Coloca o som no máximo, respira fundo e toca pra começar."
+  },
+
+  // ---- INTRO ----
+  intro: {
+    kicker: "uma mensagem especial",
+    sub: "Não é uma data, não é um rótulo.<br>É só você sendo especial do jeito que é."
+  },
+
+  // ---- SLIDES DE MENSAGEM (pode adicionar/remover quantos quiser) ----
+  messages: [
+    {
+      emoji: "🤍",
+      heading: "Parabéns, [NOME DELA]",
+      text: "Antes de tudo: <strong>para um segundo</strong> e respira. Esse pedacinho da internet existe só pra te dizer uma coisa que eu sinto de verdade."
+    },
+    {
+      emoji: "✨",
+      heading: "A gente nunca teve um \"nós\"",
+      text: "E mesmo assim você virou uma daquelas <strong>pessoas raras</strong> que marcam a gente sem nem perceber. Não precisou de história nenhuma pra você ser especial pra mim."
+    },
+    {
+      emoji: "🌸",
+      heading: "Você tem um jeito",
+      text: "Um jeito que ilumina, um sorriso que fica na cabeça e uma presença que faz qualquer dia ficar mais leve. <strong>Você é especial</strong> — e eu só queria que você soubesse disso hoje."
+    }
+  ],
+
+  // ---- FOTOS ----
+  // type: "image"  -> src é uma URL de imagem OU um data: (base64)
+  // type: "instagram" -> src é o link de um POST do Instagram (instagram.com/p/CODIGO/)
+  photos: [
+    { type: "image", src: "", caption: "Uma legenda especial...", date: "" },
+    { type: "image", src: "", caption: "Outro momento...", date: "" }
+  ],
+
+  // ---- REELS ----
+  reel: {
+    // Cole o link do reel do Instagram (instagram.com/reel/CODIGO/)
+    instagramUrl: "",
+    // OPCIONAL e RECOMENDADO p/ tocar com som e em loop: link direto do vídeo .mp4
+    videoSrc: "",
+    caption: "O buquê de hoje foi por esse video que cheguei a ver uma vez que tinha sua curtida la na época que a gente se seguia, acredito que tenha gostado ❤️, não me ache maluco só sou atento a alguns detalhes kkk"
+  },
+
+  // ---- MÚSICA DE FUNDO ----
+  // mode: "mp3" | "spotify" | "youtube" | "none"
+  music: {
+    mode: "none",
+    mp3: "",                 // URL ou data: do arquivo de áudio
+    spotifyUrl: "",          // link da música no Spotify
+    youtubeId: "",           // só o id do vídeo do YouTube
+    title: "",
+    artist: "",
+    cover: "",               // URL/base64 da capa (opcional)
+    message: "",             // recadinho sobre a música (opcional)
+    autoplay: true           // começa a tocar quando ela toca em "Começar"
+  },
+
+  // ---- FINAL ----
+  final: {
+    message: "Você é especial. Não precisa de motivo, de data nem de rótulo pra isso ser verdade. Só queria que você soubesse. 🤍",
+    sign: "Com carinho"
+  }
+};
+
+/* =========================================================================
+   ENGINE
+   ========================================================================= */
+let slides = [];
+let current = 0;
+let progressTimer = null, advanceTimer = null;
+const DURATION = 7000;          // duração padrão por slide
+const LONG_DURATION = 100000;   // slides interativos (música/reel) não avançam sozinhos
+let bgAudio = document.getElementById('bg-audio');
+let bgPlaying = false;
+let interactiveSlides = new Set(); // índices que desativam tap/swipe
+
+function getReelCode(url){ if(!url) return ''; const m=url.match(/(?:reel|reels|p|tv)\/([A-Za-z0-9_-]+)/); return m?m[1]:''; }
+function getPostCode(url){ if(!url) return ''; const m=url.match(/(?:p|reel|reels|tv)\/([A-Za-z0-9_-]+)/); return m?m[1]:''; }
+function getSpotifyId(url){ if(!url) return ''; const m=url.match(/track[/:]([A-Za-z0-9]+)/); return m?m[1]:''; }
+
+function makeSparkles(n){ let h='<div class="sparkles">'; for(let i=0;i<n;i++){h+='<div class="sparkle" style="left:'+(Math.random()*100)+'%;top:'+(Math.random()*100)+'%;opacity:'+(0.2+Math.random()*0.6)+';animation-delay:'+(Math.random()*3.4)+'s"></div>';} return h+'</div>'; }
+function makeParticles(colors){ let h='<div class="particles">'; for(let i=0;i<16;i++){const c=colors[Math.floor(Math.random()*colors.length)];h+='<div class="particle" style="left:'+(Math.random()*100)+'%;top:'+(Math.random()*100)+'%;width:'+(5+Math.random()*8)+'px;height:'+(5+Math.random()*8)+'px;background:'+c+';opacity:0.18;animation:float '+(3+Math.random()*2.5)+'s ease-in-out '+(Math.random()*4)+'s infinite"></div>';} return h+'</div>'; }
+
+const MSG_GRADS = [
+  'linear-gradient(135deg,#2d1b3d,#1a0a14)',
+  'linear-gradient(135deg,#0f3460,#533483)',
+  'linear-gradient(135deg,#1a1a2e,#11998e)',
+  'linear-gradient(135deg,#3a1c47,#16213e)'
+];
+const PHOTO_GRADS = [
+  'linear-gradient(135deg,#2d1b69,#11998e)',
+  'linear-gradient(135deg,#e91e8c33,#1a1a2e,#302b63)',
+  'linear-gradient(135deg,#0f3460,#533483)',
+  'linear-gradient(135deg,#1a1a2e,#e67e2233,#16213e)'
+];
+
+function el(html){ const d=document.createElement('div'); d.className='slide'; d.innerHTML=html; return d; }
+
+function buildIntro(){
+  const s=el('<div class="slide-bg"></div>'+makeSparkles(30)+
+    '<div class="slide-content">'+
+    '<div class="intro-kicker anim-up">'+CONFIG.intro.kicker+'</div>'+
+    '<div class="intro-name anim-scale d1">'+CONFIG.herName+'</div>'+
+    '<div class="intro-sub anim-up d3">'+CONFIG.intro.sub+'</div>'+
+    '</div>');
+  s.classList.add('s-intro');
+  return s;
+}
+
+function buildMessage(m,i){
+  const s=el('<div class="slide-bg" style="background:'+MSG_GRADS[i%MSG_GRADS.length]+';background-size:200% 200%;animation:gradientShift 8s ease infinite;"></div>'+
+    makeParticles(['#e91e8c','#9b59b6','#1DB954','#f1c40f'])+
+    '<div class="slide-content">'+
+    '<div class="msg-emoji anim-scale">'+(m.emoji||'🤍')+'</div>'+
+    '<div class="msg-heading anim-up d1">'+(m.heading||'')+'</div>'+
+    '<div class="msg-text anim-up d2">'+(m.text||'')+'</div>'+
+    '</div>');
+  s.classList.add('s-msg');
+  return s;
+}
+
+function buildPhoto(p,i){
+  let media='';
+  if(p.type==='instagram'){
+    const code=getPostCode(p.src);
+    if(code) media='<iframe class="ig-embed" src="https://www.instagram.com/p/'+code+'/embed/" height="520" scrolling="no" allowtransparency="true"></iframe>';
+  } else {
+    if(p.src) media='<img src="'+p.src+'" alt="foto">';
+  }
+  const s=el('<div class="slide-bg" style="background:'+PHOTO_GRADS[i%PHOTO_GRADS.length]+';background-size:200% 200%;animation:gradientShift 6s ease infinite;"></div>'+
+    makeParticles(['#ffffff','#1DB954','#e91e8c'])+
+    '<div class="slide-content"><div class="photo-frame anim-rotate">'+media+
+    '<div class="photo-caption anim-up d2">'+(p.caption||'')+(p.date?'<div class="photo-date">'+p.date+'</div>':'')+'</div>'+
+    '</div></div>');
+  s.classList.add('s-photo');
+  return s;
+}
+
+function buildReel(){
+  const r=CONFIG.reel;
+  let player='';
+  if(r.videoSrc){
+    player='<video src="'+r.videoSrc+'" loop playsinline controls preload="metadata"></video>';
+  } else {
+    const code=getReelCode(r.instagramUrl);
+    if(code) player='<iframe src="https://www.instagram.com/reel/'+code+'/embed/" height="560" scrolling="no" allowtransparency="true" allowfullscreen></iframe>';
+    else player='<div style="padding:60px 20px;color:#888;">(cole o link do reel no CONFIG)</div>';
+  }
+  const s=el('<div class="slide-bg"></div>'+makeParticles(['#e91e8c','#9b59b6','#f1c40f'])+
+    '<div class="slide-content">'+
+    '<div class="reel-label anim-up">um detalhe que eu reparei 👀</div>'+
+    '<div class="reel-box anim-scale d1">'+player+'</div>'+
+    '<div class="reel-hint anim-up d2">toque no ▶ pra dar play</div>'+
+    '<div class="reel-caption anim-up d3">'+(r.caption||'')+'</div>'+
+    '</div>');
+  s.classList.add('s-reel');
+  return s;
+}
+
+function buildMusic(){
+  const mu=CONFIG.music;
+  let player='';
+  if(mu.mode==='spotify'){
+    const id=getSpotifyId(mu.spotifyUrl);
+    if(id) player='<div class="spotify-wrapper anim-scale d1"><iframe src="https://open.spotify.com/embed/track/'+id+'?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allow="autoplay;clipboard-write;encrypted-media;fullscreen;picture-in-picture" loading="lazy"></iframe></div>';
+  } else if(mu.mode==='youtube'){
+    if(mu.youtubeId) player='<div class="spotify-wrapper anim-scale d1"><iframe width="100%" height="200" src="https://www.youtube.com/embed/'+mu.youtubeId+'?rel=0" frameBorder="0" allow="autoplay;encrypted-media" allowfullscreen></iframe></div>';
+  } else {
+    // mp3 / background audio: show album + play button bound to the bg audio
+    const cover=mu.cover?'<img src="'+mu.cover+'" alt="capa">':'<div class="fallback">🎵</div>';
+    player='<div class="album-art anim-scale d1">'+cover+'</div>'+
+      '<div class="music-info"><div class="music-title anim-up d2">'+(mu.title||'Nossa música')+'</div><div class="music-artist anim-up d2">'+(mu.artist||'')+'</div></div>'+
+      '<button class="play-btn anim-scale d3" onclick="toggleBgMusic(event)"><svg id="play-icon" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></button>'+
+      '<div class="music-progress anim-up d4"><div class="music-progress-fill" id="music-progress-fill"></div></div>';
+  }
+  const s=el('<div class="slide-bg"></div>'+makeParticles(['#1DB954','#1e3c72','#2a5298'])+
+    '<div class="slide-content">'+
+    '<div class="music-label anim-up">a trilha sonora 🎧</div>'+player+
+    (mu.message?'<div class="music-message anim-up d3">"'+mu.message+'"</div>':'')+
+    '</div>');
+  s.classList.add('s-music');
+  return s;
+}
+
+function buildFinal(){
+  const s=el('<div class="slide-bg"></div>'+makeSparkles(30)+
+    '<div class="slide-content">'+
+    '<div class="final-heart anim-scale">🤍</div>'+
+    '<div class="final-message anim-up d1">'+CONFIG.final.message+'</div>'+
+    '<div class="final-from anim-up d3">'+CONFIG.final.sign+',<span>'+CONFIG.fromName+'</span></div>'+
+    '<div class="btn-row anim-up d4">'+
+    '<button class="btn-soft" onclick="replay()">Ver de novo</button>'+
+    '<button class="btn-soft" onclick="copyLink(event)">Copiar link 🔗</button>'+
+    '</div></div>');
+  s.classList.add('s-final');
+  return s;
+}
+
+function build(){
+  const wrap=document.getElementById('slides');
+  wrap.innerHTML='';
+  slides=[];
+  interactiveSlides.clear();
+
+  slides.push(buildIntro());
+  CONFIG.messages.forEach((m,i)=>slides.push(buildMessage(m,i)));
+  CONFIG.photos.filter(p=>p.src||p.caption).forEach((p,i)=>slides.push(buildPhoto(p,i)));
+
+  // Reel slide (if configured) — interactive
+  if(CONFIG.reel.instagramUrl || CONFIG.reel.videoSrc){
+    const idx=slides.length; slides.push(buildReel()); interactiveSlides.add(idx);
+  }
+  // Music slide — interactive only when it's an embed (spotify/youtube)
+  if(CONFIG.music.mode!=='none'){
+    const idx=slides.length; slides.push(buildMusic());
+    if(CONFIG.music.mode==='spotify'||CONFIG.music.mode==='youtube') interactiveSlides.add(idx);
+  }
+  slides.push(buildFinal());
+
+  slides.forEach(s=>wrap.appendChild(s));
+
+  const pb=document.getElementById('progress-bars'); pb.innerHTML='';
+  slides.forEach(()=>{ const b=document.createElement('div'); b.className='progress-bar'; b.innerHTML='<div class="fill"></div>'; pb.appendChild(b); });
+}
+
+function setupBgMusic(){
+  if(CONFIG.music.mode==='mp3' && CONFIG.music.mp3){
+    bgAudio.src=CONFIG.music.mp3;
+    bgAudio.addEventListener('timeupdate',()=>{
+      const f=document.getElementById('music-progress-fill');
+      if(f && bgAudio.duration) f.style.width=(bgAudio.currentTime/bgAudio.duration*100)+'%';
+    });
+  }
+}
+
+function toggleBgMusic(e){
+  if(e) e.stopPropagation();
+  if(CONFIG.music.mode!=='mp3'||!CONFIG.music.mp3) return;
+  if(bgPlaying){ bgAudio.pause(); bgPlaying=false; }
+  else { bgAudio.play().catch(()=>{}); bgPlaying=true; }
+  updateMusicIcons();
+}
+function updateMusicIcons(){
+  const pi=document.getElementById('play-icon');
+  const mi=document.getElementById('mini-music-icon');
+  const playSvg='<polygon points="5,3 19,12 5,21"/>';
+  const pauseSvg='<rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/>';
+  if(pi) pi.innerHTML=bgPlaying?pauseSvg:playSvg;
+  if(mi) mi.innerHTML=bgPlaying?pauseSvg:playSvg;
+  const pb=document.querySelector('.play-btn'); if(pb) pb.classList.toggle('playing',bgPlaying);
+}
+
+function show(i){
+  if(i<0||i>=slides.length) return;
+  clearTimeout(advanceTimer); clearInterval(progressTimer);
+  slides.forEach(s=>s.classList.remove('active'));
+  slides[i].classList.add('active');
+  current=i;
+
+  // pause background music while on the reel (so audios don't fight)
+  const isReel=slides[i].classList.contains('s-reel');
+  if(isReel && bgPlaying){ bgAudio.pause(); /* keep bgPlaying state to resume after */ }
+
+  // disable tap/swipe on interactive slides
+  document.body.classList.toggle('no-tap', interactiveSlides.has(i));
+
+  // progress bars
+  const segs=document.querySelectorAll('.progress-bar');
+  const interactive=interactiveSlides.has(i);
+  const dur=interactive?LONG_DURATION:DURATION;
+  segs.forEach((seg,idx)=>{
+    const fill=seg.querySelector('.fill');
+    if(idx<i){ seg.classList.add('done'); fill.style.width='100%'; }
+    else if(idx===i){ seg.classList.remove('done'); fill.style.width='0%';
+      if(!interactive){ let p=0; progressTimer=setInterval(()=>{ p+=100/(dur/100); fill.style.width=Math.min(p,100)+'%'; if(p>=100) clearInterval(progressTimer); },100); }
+    } else { seg.classList.remove('done'); fill.style.width='0%'; }
+  });
+
+  // auto-advance (not on interactive slides, not on the last)
+  if(!interactive && i<slides.length-1){
+    advanceTimer=setTimeout(()=>{ if(current<slides.length-1) show(current+1); }, dur);
+  }
+}
+
+function next(){ if(current<slides.length-1) show(current+1); }
+function prev(){ if(current>0) show(current-1); }
+function replay(){ show(0); }
+
+function copyLink(e){
+  if(e) e.stopPropagation();
+  const url=(location.protocol==='file:')?CONFIG.pageUrl:location.href.split('#')[0];
+  navigator.clipboard.writeText(url).then(()=>{ const b=e&&e.target; if(b){ const t=b.textContent; b.textContent='Copiado! ✓'; setTimeout(()=>b.textContent=t,2000); } });
+}
+
+function startStory(){
+  document.getElementById('start-screen').classList.add('hidden');
+  document.getElementById('player').classList.add('active');
+  // unlock + start background music on this user gesture
+  if(CONFIG.music.mode==='mp3' && CONFIG.music.mp3 && CONFIG.music.autoplay){
+    bgAudio.play().then(()=>{ bgPlaying=true; updateMusicIcons(); document.getElementById('mini-music').classList.add('show'); }).catch(()=>{
+      document.getElementById('mini-music').classList.add('show');
+    });
+  }
+  show(0);
+}
+
+// navigation bindings
+document.getElementById('tap-left').addEventListener('click',prev);
+document.getElementById('tap-right').addEventListener('click',next);
+let touchX=0;
+document.getElementById('player').addEventListener('touchstart',e=>{touchX=e.changedTouches[0].screenX;},{passive:true});
+document.getElementById('player').addEventListener('touchend',e=>{
+  if(document.body.classList.contains('no-tap')) return;
+  const d=touchX-e.changedTouches[0].screenX;
+  if(Math.abs(d)>50){ if(d>0) next(); else prev(); }
+});
+document.addEventListener('keydown',e=>{ if(e.key==='ArrowRight'||e.key===' ')next(); if(e.key==='ArrowLeft')prev(); });
+
+// init
+function applyConfigText(){
+  document.getElementById('start-title').innerHTML=CONFIG.start.title;
+  document.getElementById('start-sub').textContent=CONFIG.start.subtitle;
+  document.title='Pra você, '+CONFIG.herName+' 🤍';
+}
+window.addEventListener('load',()=>{ applyConfigText(); setupBgMusic(); build(); });
+</script>
+</body>
+</html>
