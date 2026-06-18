@@ -252,9 +252,9 @@ const CONFIG = {
   // type: "image"  -> src é uma URL de imagem OU um data: (base64)
   // type: "instagram" -> src é o link de um POST do Instagram (instagram.com/p/CODIGO/)
   photos: [
-    { type: "instagram", src: "https://www.instagram.com/p/DZZt334EaFb/", caption: "Esse sorriso 🤍", date: "" },
-    { type: "instagram", src: "https://www.instagram.com/p/DWecjPMkU6v/", caption: "Você", date: "" },
-    { type: "instagram", src: "https://www.instagram.com/p/DV9rzJCCeV2/", caption: "Maria 🌟", date: "" }
+    { type: "instagram", src: "https://www.instagram.com/p/DZZt334EaFb/", caption: "", date: "" },
+    { type: "instagram", src: "https://www.instagram.com/p/DWecjPMkU6v/", caption: "", date: "" },
+    { type: "instagram", src: "https://www.instagram.com/p/DV9rzJCCeV2/", caption: "", date: "" }
   ],
 
   // ---- REELS ----
@@ -352,10 +352,12 @@ function buildPhoto(p,i){
   } else {
     if(p.src) media='<img src="'+p.src+'" alt="foto">';
   }
+  const captionHtml=(p.caption||p.date)
+    ? '<div class="photo-caption anim-up d2">'+(p.caption||'')+(p.date?'<div class="photo-date">'+p.date+'</div>':'')+'</div>'
+    : '';
   const s=el('<div class="slide-bg" style="background:'+PHOTO_GRADS[i%PHOTO_GRADS.length]+';background-size:200% 200%;animation:gradientShift 6s ease infinite;"></div>'+
     makeParticles(['#ffffff','#1DB954','#e91e8c'])+
-    '<div class="slide-content"><div class="photo-frame anim-rotate">'+media+
-    '<div class="photo-caption anim-up d2">'+(p.caption||'')+(p.date?'<div class="photo-date">'+p.date+'</div>':'')+'</div>'+
+    '<div class="slide-content"><div class="photo-frame anim-rotate">'+media+captionHtml+
     '</div></div>');
   s.classList.add('s-photo');
   return s;
