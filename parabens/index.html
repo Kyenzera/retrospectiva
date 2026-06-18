@@ -194,32 +194,37 @@ const CONFIG = {
 
   // ---- TELA INICIAL ----
   start: {
-    title: "Tem um cantinho aqui<br>só pra você",
+    title: "Feliz aniversário 🎂<br>tem algo aqui pra você",
     subtitle: "Coloca o som no máximo, respira fundo e toca pra começar."
   },
 
   // ---- INTRO ----
   intro: {
-    kicker: "uma mensagem especial",
-    sub: "Não é uma data, não é um rótulo.<br>É só você sendo especial do jeito que é."
+    kicker: "hoje é um dia especial",
+    sub: "É o seu aniversário —<br>e eu não ia deixar passar em branco."
   },
 
   // ---- SLIDES DE MENSAGEM (pode adicionar/remover quantos quiser) ----
   messages: [
     {
-      emoji: "🤍",
-      heading: "Parabéns, [NOME DELA]",
-      text: "Antes de tudo: <strong>para um segundo</strong> e respira. Esse pedacinho da internet existe só pra te dizer uma coisa que eu sinto de verdade."
+      emoji: "🎂",
+      heading: "Feliz aniversário, [NOME DELA]",
+      text: "Hoje é o <strong>seu dia</strong>, então para tudo um segundinho... respira... porque esse cantinho aqui foi feito só pra te dizer uma coisa que eu sinto de verdade."
     },
     {
-      emoji: "✨",
+      emoji: "🤍",
       heading: "A gente nunca teve um \"nós\"",
       text: "E mesmo assim você virou uma daquelas <strong>pessoas raras</strong> que marcam a gente sem nem perceber. Não precisou de história nenhuma pra você ser especial pra mim."
     },
     {
-      emoji: "🌸",
+      emoji: "✨",
       heading: "Você tem um jeito",
-      text: "Um jeito que ilumina, um sorriso que fica na cabeça e uma presença que faz qualquer dia ficar mais leve. <strong>Você é especial</strong> — e eu só queria que você soubesse disso hoje."
+      text: "Um sorriso que fica na cabeça e uma presença que deixa qualquer dia mais leve. <strong>O mundo é um lugar melhor</strong> por você existir nele — e hoje é a prova disso."
+    },
+    {
+      emoji: "🎉",
+      heading: "Que esse ano novo seja seu",
+      text: "Que ele te traga tudo que você sonha e <strong>merece</strong>: saúde, conquistas, risadas, paz e pessoas que te valorizem do tamanho que você é."
     }
   ],
 
@@ -227,8 +232,8 @@ const CONFIG = {
   // type: "image"  -> src é uma URL de imagem OU um data: (base64)
   // type: "instagram" -> src é o link de um POST do Instagram (instagram.com/p/CODIGO/)
   photos: [
-    { type: "image", src: "", caption: "Uma legenda especial...", date: "" },
-    { type: "image", src: "", caption: "Outro momento...", date: "" }
+    { type: "instagram", src: "", caption: "Uma legenda especial...", date: "" },
+    { type: "instagram", src: "", caption: "Outro momento...", date: "" }
   ],
 
   // ---- REELS ----
@@ -243,9 +248,9 @@ const CONFIG = {
   // ---- MÚSICA DE FUNDO ----
   // mode: "mp3" | "spotify" | "youtube" | "none"
   music: {
-    mode: "none",
+    mode: "spotify",
     mp3: "",                 // URL ou data: do arquivo de áudio
-    spotifyUrl: "",          // link da música no Spotify
+    spotifyUrl: "",          // link da música no Spotify (cole aqui)
     youtubeId: "",           // só o id do vídeo do YouTube
     title: "",
     artist: "",
@@ -256,7 +261,7 @@ const CONFIG = {
 
   // ---- FINAL ----
   final: {
-    message: "Você é especial. Não precisa de motivo, de data nem de rótulo pra isso ser verdade. Só queria que você soubesse. 🤍",
+    message: "Feliz aniversário de novo, [NOME DELA]. Você é especial — não precisa de motivo, de data nem de rótulo pra isso ser verdade. Mas hoje, no seu dia, eu queria muito que você soubesse. 🤍",
     sign: "Com carinho"
   }
 };
