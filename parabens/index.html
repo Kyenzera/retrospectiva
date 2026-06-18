@@ -146,6 +146,18 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Poppins',sans-seri
 #mini-music.show{display:flex;}
 #mini-music svg{width:20px;height:20px;fill:#fff;}
 
+/* navigation arrows (shown on interactive slides: reel / spotify) */
+@keyframes arrowGlow{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,0.28);}50%{box-shadow:0 0 0 7px rgba(255,255,255,0);}}
+.nav-arrow{position:fixed;top:50%;transform:translateY(-50%);z-index:260;width:48px;height:48px;border-radius:50%;
+  background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.35);display:none;align-items:center;justify-content:center;
+  cursor:pointer;backdrop-filter:blur(4px);animation:arrowGlow 2.2s ease infinite;}
+.nav-arrow svg{width:22px;height:22px;fill:#fff;}
+.nav-arrow.nav-left{left:10px;}
+.nav-arrow.nav-right{right:10px;}
+body.show-arrows .nav-arrow{display:flex;}
+/* hide the prev arrow on the very first slide just in case */
+body.show-arrows.at-first .nav-left{display:none;}
+
 @media (max-width:380px){
   .intro-name{font-size:2.6rem;}
   .album-art{width:170px;height:170px;}
@@ -178,6 +190,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Poppins',sans-seri
   <svg id="mini-music-icon" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
 </button>
 
+<!-- navigation arrows for interactive slides (reel / music) -->
+<button class="nav-arrow nav-left" id="nav-prev" onclick="prev()" aria-label="Voltar">
+  <svg viewBox="0 0 24 24"><polygon points="15,4 7,12 15,20"/></svg>
+</button>
+<button class="nav-arrow nav-right" id="nav-next" onclick="next()" aria-label="Próximo">
+  <svg viewBox="0 0 24 24"><polygon points="9,4 17,12 9,20"/></svg>
+</button>
+
 <audio id="bg-audio" loop></audio>
 
 <script>
@@ -186,7 +206,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Poppins',sans-seri
    Pra personalizar, basta editar os valores abaixo.
    ========================================================================= */
 const CONFIG = {
-  herName: "Maria Eduarda",
+  herName: "Maria",
   fromName: "Fabiano",
 
   // URL pública desta página (usada pra gerar o QR Code / link de compartilhar)
@@ -208,7 +228,7 @@ const CONFIG = {
   messages: [
     {
       emoji: "🎂",
-      heading: "Feliz aniversário, Maria Eduarda",
+      heading: "Feliz aniversário, Maria",
       text: "Hoje é o <strong>seu dia</strong> e eu não ia deixar passar sem te desejar tudo de mais lindo. Para um segundinho, respira, e curte esse cantinho que eu fiz só pra você."
     },
     {
@@ -224,7 +244,7 @@ const CONFIG = {
     {
       emoji: "🤍",
       heading: "Você merece o mundo",
-      text: "Que você seja muito feliz, hoje e sempre. <strong>Parabéns, Maria Eduarda</strong>, você é especial demais e merece um dia tão lindo quanto você."
+      text: "Que você seja muito feliz, hoje e sempre. <strong>Parabéns, Maria</strong>, você é especial demais e merece um dia tão lindo quanto você."
     }
   ],
 
@@ -234,7 +254,7 @@ const CONFIG = {
   photos: [
     { type: "instagram", src: "https://www.instagram.com/p/DZZt334EaFb/", caption: "Esse sorriso 🤍", date: "" },
     { type: "instagram", src: "https://www.instagram.com/p/DWecjPMkU6v/", caption: "Você", date: "" },
-    { type: "instagram", src: "https://www.instagram.com/p/DV9rzJCCeV2/", caption: "Maria Eduarda 🌟", date: "" }
+    { type: "instagram", src: "https://www.instagram.com/p/DV9rzJCCeV2/", caption: "Maria 🌟", date: "" }
   ],
 
   // ---- REELS ----
@@ -262,7 +282,7 @@ const CONFIG = {
 
   // ---- FINAL ----
   final: {
-    message: "Feliz aniversário de novo, Maria Eduarda. Que esse seja só o começo de um ano cheio de coisas boas. Você é muito especial pra mim, e hoje, no seu dia, eu queria que você soubesse disso. 🤍",
+    message: "Feliz aniversário de novo, Maria. Que esse seja só o começo de um ano cheio de coisas boas. Você é muito especial pra mim, e hoje, no seu dia, eu queria que você soubesse disso. 🤍",
     sign: "Com carinho"
   }
 };
@@ -356,7 +376,7 @@ function buildReel(){
     '<div class="slide-content">'+
     '<div class="reel-label anim-up">um detalhe que eu reparei 👀</div>'+
     '<div class="reel-box anim-scale d1">'+player+'</div>'+
-    '<div class="reel-hint anim-up d2">toque no ▶ pra dar play</div>'+
+    '<div class="reel-hint anim-up d2">toque no ▶ pra dar play • use as setas ‹ › pra continuar</div>'+
     '<div class="reel-caption anim-up d3">'+(r.caption||'')+'</div>'+
     '</div>');
   s.classList.add('s-reel');
@@ -473,6 +493,9 @@ function show(i){
   // progress bars
   const segs=document.querySelectorAll('.progress-bar');
   const interactive=interactiveSlides.has(i);
+  // show navigation arrows when tap/swipe is disabled (reel / music slides)
+  document.body.classList.toggle('show-arrows', interactive);
+  document.body.classList.toggle('at-first', i===0);
   const dur=interactive?LONG_DURATION:DURATION;
   segs.forEach((seg,idx)=>{
     const fill=seg.querySelector('.fill');
