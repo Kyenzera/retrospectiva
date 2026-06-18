@@ -131,6 +131,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Poppins',sans-seri
 
 /* ===== FINAL SLIDE ===== */
 .s-final .slide-bg{background:linear-gradient(135deg,#1a0a14,#2d1b3d,#0f0c29);background-size:200% 200%;animation:gradientShift 7s ease infinite;}
+.s-final .slide-content{z-index:60;}
+.s-final .btn-soft{position:relative;z-index:60;}
 .final-heart{font-size:4rem;animation:heartbeat 2s ease infinite;margin-bottom:18px;}
 .final-message{font-size:1.3rem;font-weight:300;line-height:1.7;max-width:330px;margin:0 auto;}
 .final-from{margin-top:28px;font-size:0.85rem;color:var(--muted);}
@@ -418,7 +420,6 @@ function buildFinal(){
     '<div class="final-from anim-up d3">'+CONFIG.final.sign+',<span>'+CONFIG.fromName+'</span></div>'+
     '<div class="btn-row anim-up d4">'+
     '<button class="btn-soft" onclick="replay()">Ver de novo</button>'+
-    '<button class="btn-soft" onclick="copyLink(event)">Copiar link 🔗</button>'+
     '</div></div>');
   s.classList.add('s-final');
   return s;
